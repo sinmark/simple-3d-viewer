@@ -12,7 +12,7 @@ Simple 3D Viewer is meant to be a basic 3D viewer with a simple codebase.
 
 ## Getting Started
 
-This section is about building the viewer.
+This section will show you how to build the viewer.
 
 ### Prerequisites
 
@@ -35,5 +35,14 @@ git submodule init
 git submodule update
 ```
 
-Then start use standard cmake commands to configure the project and build it.
-The CMakePresets.json has the required arguments for cmake invocation.
+If you are using Visual Studio Code then you can use the CMakePresets.json to
+configure and build the project. Otherwise you can issue standard cmake
+commands:
+
+```
+mkdir build
+cd build
+cmake .. -DCMAKE_BUILD_TYPE=Release -G Ninja
+ninja 
+./bin/Release/Simple3DViewer
+```

@@ -5,7 +5,7 @@ set(CMAKE_TOOLCHAIN_FILE "${CMAKE_CURRENT_SOURCE_DIR}/vcpkg/scripts/buildsystems
 
 # Project details
 project(
-  "Simple_3D_Viewer"
+  "Simple3DViewer"
   VERSION 0.1.0
   LANGUAGES C CXX
 )
