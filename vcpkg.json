@@ -1,7 +1,38 @@
 {
-  "name": "project",
+  "name": "simple3dviewer",
   "version-string": "latest",
+  "builtin-baseline": "a960fde0b60b6392d70375fe513dfa7eb083cc3a",
   "dependencies": [
-    "gtest"
+    "glfw3",
+    {
+      "name": "imgui",
+      "features": ["glfw-binding", "opengl3-binding"]
+    },
+    "imgui",
+    "glm",
+    "assimp",
+    "stb"
+  ],
+  "overrides": [
+    { 
+      "name": "glfw3",
+      "version": "3.3.8"
+    },
+    { 
+      "name": "imgui",
+      "version": "1.88"
+    },
+    { 
+      "name": "glm",
+      "version": "0.9.9.8"
+    },
+    { 
+      "name": "assimp",
+      "version": "5.2.5"
+    },
+    { 
+      "name": "assimp",
+      "version": "2021-09-10"
+    }
   ]
 }

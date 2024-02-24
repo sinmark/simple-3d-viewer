@@ -1,15 +1,37 @@
 set(sources
-  src/tmp.cpp
+  src/simple_3d_viewer/Viewer.cpp
+  src/simple_3d_viewer/ImGuiWrapper.cpp
+  src/simple_3d_viewer/Mediator.cpp
+  src/simple_3d_viewer/rendering/Camera.cpp
+  src/simple_3d_viewer/rendering/Material.cpp
+  src/simple_3d_viewer/rendering/Mesh.cpp
+  src/simple_3d_viewer/rendering/Model.cpp
+  src/simple_3d_viewer/rendering/PostprocessPipeline.cpp
+  src/simple_3d_viewer/rendering/Renderer.cpp
+  src/simple_3d_viewer/opengl_object_wrappers/Program.cpp
+  src/simple_3d_viewer/opengl_object_wrappers/Texture.cpp
+  src/simple_3d_viewer/linear_algebra/meshGeneration.cpp
+  src/simple_3d_viewer/linear_algebra/Transform.cpp
 )
 
 set(exe_sources
-  src/main.cpp
+  src/simple_3d_viewer/main.cpp
 )
 
 set(headers
-  include/project/tmp.hpp
-)
-
-set(test_sources
-  src/tmp_test.cpp
+  include/simple_3d_viewer/Viewer.hpp
+  include/simple_3d_viewer/ImGuiWrapper.hpp
+  include/simple_3d_viewer/Mediator.hpp
+  include/simple_3d_viewer/rendering/Camera.hpp
+  include/simple_3d_viewer/rendering/Material.hpp
+  include/simple_3d_viewer/rendering/Mesh.hpp
+  include/simple_3d_viewer/rendering/Model.hpp
+  include/simple_3d_viewer/rendering/PostprocessPipeline.hpp
+  include/simple_3d_viewer/rendering/Renderer.hpp
+  include/simple_3d_viewer/rendering/Scene.hpp
+  include/simple_3d_viewer/opengl_object_wrappers/Program.hpp
+  include/simple_3d_viewer/opengl_object_wrappers/Texture.hpp
+  include/simple_3d_viewer/linear_algebra/meshGeneration.hpp
+  include/simple_3d_viewer/linear_algebra/Transform.hpp
+  include/simple_3d_viewer/linear_algebra/Vertex.hpp
 )

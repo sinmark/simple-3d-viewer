@@ -15,7 +15,7 @@
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug",
                 "CMAKE_CXX_COMPILER": "/usr/bin/c++",
-                "CMAKE_C_COMPILER": "/usr/bin/c++"
+                "CMAKE_C_COMPILER": "/usr/bin/cc"
             }
         },
         {
@@ -27,7 +27,7 @@
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release",
                 "CMAKE_CXX_COMPILER": "/usr/bin/c++",
-                "CMAKE_C_COMPILER": "/usr/bin/c++"
+                "CMAKE_C_COMPILER": "/usr/bin/cc"
             }
         }
     ],

@@ -5,9 +5,9 @@ set(CMAKE_TOOLCHAIN_FILE "${CMAKE_CURRENT_SOURCE_DIR}/vcpkg/scripts/buildsystems
 
 # Project details
 project(
-  "Project"
+  "Simple_3D_Viewer"
   VERSION 0.1.0
-  LANGUAGES CXX
+  LANGUAGES C CXX
 )
 
 # Set project options
@@ -90,12 +90,13 @@ else()
   endif()
 endif()
 
+set(${PROJECT_NAME}_OUTPUT_DIR "${CMAKE_BINARY_DIR}/bin/${CMAKE_BUILD_TYPE}")
 set_target_properties(
   ${PROJECT_NAME}
   PROPERTIES
   ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib/${CMAKE_BUILD_TYPE}"
   LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib/${CMAKE_BUILD_TYPE}"
-  RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/${CMAKE_BUILD_TYPE}"
+  RUNTIME_OUTPUT_DIRECTORY ${${PROJECT_NAME}_OUTPUT_DIR}
 )
 
 if(${PROJECT_NAME}_BUILD_EXECUTABLE)
@@ -153,6 +154,20 @@ verbose_message("Project library reference: ${PROJECT_LIBRARY}\n")
 # dependency1 ...
 # )
 # endif()
+find_package(glfw3 CONFIG REQUIRED)
+find_package(imgui CONFIG REQUIRED)
+find_package(assimp CONFIG REQUIRED)
+
+# External dependencies that are part of this repo
+add_subdirectory(external/glad)
+add_subdirectory(external/ImGuiFileDialog)
+
+target_link_libraries(${PROJECT_NAME}_LIB PUBLIC glfw glad imgui::imgui assimp::assimp ImGuiFileDialog)
+
+add_custom_target(copy_resources
+  COMMAND ${CMAKE_COMMAND} -DPROJECT_OUTPUT_DIR=${${PROJECT_NAME}_OUTPUT_DIR} -P ${CMAKE_CURRENT_LIST_DIR}/copy_resources.cmake
+)
+add_dependencies(${PROJECT_NAME} copy_resources)
 
 # For Windows, it is necessary to link with the MultiThreaded library.
 # Depending on how the rest of the project's dependencies are linked, it might be necessary
@@ -208,11 +223,11 @@ verbose_message("Project is now aliased as ${PROJECT_NAME}::${PROJECT_NAME}.\n")
 add_clang_format_target()
 
 # Unit testing setup
-if(${PROJECT_NAME}_ENABLE_UNIT_TESTING)
-  enable_testing()
-  message(STATUS "Build unit tests for the project. Tests should always be found in the test folder\n")
-  add_subdirectory(test)
-endif()
+# if(${PROJECT_NAME}_ENABLE_UNIT_TESTING)
+# enable_testing()
+# message(STATUS "Build unit tests for the project. Tests should always be found in the test folder\n")
+# add_subdirectory(test)
+# endif()
 
 # Put compile_commands.json into project root
 if(CMAKE_EXPORT_COMPILE_COMMANDS)
