@@ -1,5 +1,5 @@
 ---
-Checks: '*,-fuchsia-*,-google-*,-zircon-*,-abseil-*,-modernize-use-trailing-return-type,-llvm-*,-llvmlibc-*, -altera-unroll-loops, -readability-identifier-length, -cppcoreguidelines-avoid-magic-numbers, -altera-id-dependent-backward-branch'
+Checks: '*,-fuchsia-*,-google-*,-zircon-*,-abseil-*,-modernize-use-trailing-return-type,-llvm-*,-llvmlibc-*, -altera-unroll-loops, -readability-identifier-length, -cppcoreguidelines-avoid-magic-numbers, -altera-id-dependent-backward-branch, -cppcoreguidelines-pro-type-union-access, -readability-uppercase-literal-suffix'
 CheckOptions: [{ key: misc-non-private-member-variables-in-classes, value: IgnoreClassesWithAllMemberVariablesBeingPublic }]
 WarningsAsErrors: '*'
 HeaderFilterRegex: ''
