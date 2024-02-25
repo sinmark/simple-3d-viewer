@@ -1,5 +1,6 @@
-#include <GLFW/glfw3.h>
 #include <glad/glad.h>
+
+#include <GLFW/glfw3.h>
 
 #include <filesystem>
 #include <simple_3d_viewer/ImGuiWrapper.hpp>

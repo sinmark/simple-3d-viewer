@@ -1,17 +1,17 @@
 #pragma once
 
-#include <assimp/postprocess.h>
-#include <assimp/scene.h>
 #include <glad/glad.h>
-#include <stb_image.h>
 
 #include <assimp/Importer.hpp>
+#include <assimp/postprocess.h>
+#include <assimp/scene.h>
 #include <bitset>
 #include <glm/glm.hpp>
 #include <simple_3d_viewer/linear_algebra/Transform.hpp>
 #include <simple_3d_viewer/opengl_object_wrappers/Texture.hpp>
 #include <simple_3d_viewer/rendering/Material.hpp>
 #include <simple_3d_viewer/rendering/Mesh.hpp>
+#include <stb_image.h>
 #include <string>
 #include <vector>
 

@@ -20,4 +20,11 @@ SpaceBeforeParens: ControlStatements
 SpaceBeforeRangeBasedForLoopColon: 'true'
 SpaceInEmptyBlock: true
 Standard: 'Latest'
+IncludeCategories:
+  - Regex:           '^<glad/glad.h>'
+    Priority:        1
+  - Regex:           '^<GLFW/.*'
+    Priority:        2
+  - Regex:           '.*'
+    Priority:        3
 ...

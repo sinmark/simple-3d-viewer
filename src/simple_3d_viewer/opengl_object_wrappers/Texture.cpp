@@ -1,8 +1,7 @@
 #define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
-
 #include <iostream>
 #include <simple_3d_viewer/opengl_object_wrappers/Texture.hpp>
+#include <stb_image.h>
 
 namespace Simple3D
 {

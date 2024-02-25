@@ -1,9 +1,9 @@
 #pragma once
 
-#include <assert.h>
 #include <glad/glad.h>
 
 #include <array>
+#include <cassert>
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 #include <simple_3d_viewer/linear_algebra/Vertex.hpp>
