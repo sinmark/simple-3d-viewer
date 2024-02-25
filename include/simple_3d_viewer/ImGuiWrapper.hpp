@@ -8,21 +8,26 @@
 #include <string>
 #include <vector>
 
-namespace Simple3D {
-class ImGuiWrapper {
-public:
-  struct Slider {
+namespace Simple3D
+{
+class ImGuiWrapper
+{
+ public:
+  struct Slider
+  {
     std::string text;
     float defaultValue;
     float currentValue;
     float minValue;
     float maxValue;
   };
-  struct Checkbox {
+  struct Checkbox
+  {
     std::string text;
     bool value;
   };
-  enum class Event {
+  enum class Event
+  {
     PostprocessesControlsChange,
     LightingControlsChange,
     VisualizeLightPositionCheckboxChange,
@@ -32,57 +37,77 @@ public:
     LoadModel,
     ReloadProgram,
   };
-  class Mediator {
-  public:
+  class Mediator
+  {
+   public:
     virtual ~Mediator() = default;
 
     virtual void notify(Event e) = 0;
   };
 
-  ImGuiWrapper(GLFWwindow *window,
-               const std::vector<std::string> &postprocesses);
-  ~ImGuiWrapper() { release(); }
+  ImGuiWrapper(
+      GLFWwindow *window,
+      const std::vector<std::string> &postprocesses);
+  ~ImGuiWrapper()
+  {
+    release();
+  }
 
   void update();
-  void render() {
+  void render()
+  {
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
   }
-  void release() {
+  void release()
+  {
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
   }
-  void setMediator(Mediator *mediator) { mediator_ = mediator; }
+  void setMediator(Mediator *mediator)
+  {
+    mediator_ = mediator;
+  }
   void sync();
 
-public:
-  const std::string &getSelectedFilePath() const { return filePath_; }
-  const std::vector<Checkbox> &getPostprocessesCheckboxes() const {
+ public:
+  const std::string &getSelectedFilePath() const
+  {
+    return filePath_;
+  }
+  const std::vector<Checkbox> &getPostprocessesCheckboxes() const
+  {
     return postprocessesCheckboxes_;
   }
-  const std::vector<Checkbox> &getLightControlsCheckboxes() const {
+  const std::vector<Checkbox> &getLightControlsCheckboxes() const
+  {
     return lightControlsCheckboxes_;
   }
-  const std::vector<Checkbox> &getModelLoadingConfigurationCheckboxes() const {
+  const std::vector<Checkbox> &getModelLoadingConfigurationCheckboxes() const
+  {
     return modelLoadingConfigurationCheckboxes_;
   }
-  const std::vector<Slider> &getLightControlsSliders() const {
+  const std::vector<Slider> &getLightControlsSliders() const
+  {
     return lightControlsSliders_;
   }
-  const std::vector<Slider> &getModelControlsSliders() const {
+  const std::vector<Slider> &getModelControlsSliders() const
+  {
     return modelTransformSliders_;
   }
-  const std::vector<Slider> &getCameraControlsSliders() const {
+  const std::vector<Slider> &getCameraControlsSliders() const
+  {
     return cameraControlsSliders_;
   }
-  void printError(const std::string &errorMessage) {
+  void printError(const std::string &errorMessage)
+  {
     cachedErrorMessage_ = errorMessage;
     ImGui::OpenPopup("errorPopup");
   }
 
-private:
-  Mediator *mediator_{nullptr};
+ private:
+  Mediator *mediator_{ nullptr };
   std::string filePath_;
   std::vector<Checkbox> postprocessesCheckboxes_;
   std::vector<Checkbox> lightControlsCheckboxes_;
@@ -90,7 +115,7 @@ private:
   std::vector<Slider> lightControlsSliders_;
   std::vector<Slider> modelTransformSliders_;
   std::vector<Slider> cameraControlsSliders_;
-  bool synced_{false};
+  bool synced_{ false };
   std::string cachedErrorMessage_;
 
   void init(GLFWwindow *window);
@@ -103,4 +128,4 @@ private:
   void drawCameraArea();
   void loadModelDialog();
 };
-} // namespace Simple3D
+}  // namespace Simple3D

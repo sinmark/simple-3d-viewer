@@ -1,13 +1,13 @@
-#include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <glad/glad.h>
 
 #include <filesystem>
-
 #include <simple_3d_viewer/ImGuiWrapper.hpp>
 #include <simple_3d_viewer/Mediator.hpp>
 #include <simple_3d_viewer/Viewer.hpp>
 
-int main() {
+int main()
+{
   // GLFW init stuff
   if (!glfwInit())
     return -1;
@@ -17,21 +17,28 @@ int main() {
   const int initialScreenWidth = 800;
   const int initialScreenHeight = 600;
   GLFWwindow *window = nullptr;
-  window = glfwCreateWindow(initialScreenWidth, initialScreenHeight,
-                            "Simple 3D Viewer", nullptr, nullptr);
-  if (!window) {
+  window = glfwCreateWindow(
+      initialScreenWidth,
+      initialScreenHeight,
+      "Simple 3D Viewer",
+      nullptr,
+      nullptr);
+  if (!window)
+  {
     glfwTerminate();
     return -1;
   }
   glfwMakeContextCurrent(window);
-  if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress))) {
+  if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress)))
+  {
     glfwTerminate();
     return -1;
   }
   glfwSwapInterval(1);
 
-  std::vector<std::string> supportedPostprocesses = {"FXAA", "inversion",
-                                                     "grayscale"};
+  std::vector<std::string> supportedPostprocesses = { "FXAA",
+                                                      "inversion",
+                                                      "grayscale" };
   Simple3D::ImGuiWrapper imGuiWrapper(window, supportedPostprocesses);
   Simple3D::Viewer viewer(window, supportedPostprocesses);
   Simple3D::Mediator mediator(imGuiWrapper, viewer);
@@ -39,7 +46,8 @@ int main() {
 
   double previousTime = 0;
   double currentTime = glfwGetTime();
-  while (!glfwWindowShouldClose(window)) {
+  while (!glfwWindowShouldClose(window))
+  {
     previousTime = currentTime;
     currentTime = glfwGetTime();
     const double delta = currentTime - previousTime;

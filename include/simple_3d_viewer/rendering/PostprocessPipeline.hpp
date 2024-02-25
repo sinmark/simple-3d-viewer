@@ -3,26 +3,29 @@
 #include <glad/glad.h>
 
 #include <memory>
+#include <simple_3d_viewer/opengl_object_wrappers/Program.hpp>
+#include <simple_3d_viewer/utils/Size.hpp>
 #include <stdexcept>
 #include <unordered_map>
 #include <vector>
 
-#include <simple_3d_viewer/opengl_object_wrappers/Program.hpp>
-#include <simple_3d_viewer/utils/Size.hpp>
-
-
-namespace Simple3D {
-struct Postprocess {
+namespace Simple3D
+{
+struct Postprocess
+{
   Program program;
   bool active;
 };
 using PostprocessID = std::string;
 
-class PostprocessPipeline {
-public:
+class PostprocessPipeline
+{
+ public:
   using OnResizeFunction = std::function<void(Size)>;
 
-  PostprocessPipeline(const std::vector<PostprocessID> &postprocessIDs, Size size);
+  PostprocessPipeline(
+      const std::vector<PostprocessID> &postprocessIDs,
+      Size size);
   PostprocessPipeline(const PostprocessPipeline &) = delete;
   PostprocessPipeline(PostprocessPipeline &&postprocessPipeline) noexcept
       : idToPostprocess_(std::move(postprocessPipeline.idToPostprocess_)),
@@ -34,17 +37,22 @@ public:
         colorBuffers_(std::move(postprocessPipeline.colorBuffers_)),
         renderBuffers_(std::move(postprocessPipeline.renderBuffers_)),
         screenQuadVBO_(postprocessPipeline.screenQuadVBO_),
-        screenQuadVAO_(postprocessPipeline.screenQuadVAO_) {
+        screenQuadVAO_(postprocessPipeline.screenQuadVAO_)
+  {
     postprocessPipeline.screenQuadVBO_ = 0;
     postprocessPipeline.screenQuadVAO_ = 0;
   }
   PostprocessPipeline &operator=(const PostprocessPipeline &) = delete;
   PostprocessPipeline &operator=(PostprocessPipeline &&) = delete;
-  ~PostprocessPipeline() { release(); }
+  ~PostprocessPipeline()
+  {
+    release();
+  }
 
   void start();
   void finalize();
-  void setPostprocessActiveFlag(const std::string &id, bool active) {
+  void setPostprocessActiveFlag(const std::string &id, bool active)
+  {
     auto &postprocess = idToPostprocess_.at(id);
     if (postprocess.active == active)
       return;
@@ -54,11 +62,13 @@ public:
     if (postprocess.active)
       postprocessesOrder_.push_back(program);
     else
-      postprocessesOrder_.erase(std::remove(postprocessesOrder_.begin(),
-                                            postprocessesOrder_.end(), program),
-                                postprocessesOrder_.end());
+      postprocessesOrder_.erase(
+          std::remove(
+              postprocessesOrder_.begin(), postprocessesOrder_.end(), program),
+          postprocessesOrder_.end());
   }
-  void resize(Size size) {
+  void resize(Size size)
+  {
     if (size == size_)
       return;
     size_ = size;
@@ -66,12 +76,13 @@ public:
 
     resizeFramebuffersAttachments();
   }
-  void release() {
+  void release()
+  {
     releaseFramebuffers();
     releaseScreenQuad();
   }
 
-private:
+ private:
   std::unordered_map<PostprocessID, Postprocess> idToPostprocess_;
   std::vector<Program *> postprocessesOrder_;
   std::vector<Program *> postprocessesToUpdate_;
@@ -91,4 +102,4 @@ private:
   void releaseScreenQuad();
   void updatePostprocesses();
 };
-} // namespace Simple3D
+}  // namespace Simple3D

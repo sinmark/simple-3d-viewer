@@ -1,54 +1,70 @@
 #pragma once
 
+#include <assert.h>
 #include <glad/glad.h>
-#include <glm/vec2.hpp>
-#include <glm/vec3.hpp>
 
 #include <array>
-#include <assert.h>
+#include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
+#include <simple_3d_viewer/linear_algebra/Vertex.hpp>
+#include <simple_3d_viewer/opengl_object_wrappers/Program.hpp>
+#include <simple_3d_viewer/opengl_object_wrappers/Texture.hpp>
+#include <simple_3d_viewer/rendering/Camera.hpp>
+#include <simple_3d_viewer/rendering/Material.hpp>
 #include <string>
 #include <vector>
 
-#include <simple_3d_viewer/rendering/Camera.hpp>
-#include <simple_3d_viewer/rendering/Material.hpp>
-#include <simple_3d_viewer/opengl_object_wrappers/Program.hpp>
-#include <simple_3d_viewer/opengl_object_wrappers/Texture.hpp>
-#include <simple_3d_viewer/linear_algebra/Vertex.hpp>
-
-namespace Simple3D {
-class Mesh {
-public:
+namespace Simple3D
+{
+class Mesh
+{
+ public:
   Mesh() = delete;
   Mesh(std::vector<Vertex> &&vertices, bool issueRenderingAPICalls = true)
-      : vertices_(std::move(vertices)) {
+      : vertices_(std::move(vertices))
+  {
     if (issueRenderingAPICalls)
       init();
   }
-  Mesh(std::vector<Vertex> &&vertices, std::vector<GLuint> &&indices,
-       bool issueRenderingAPICalls = true)
-      : vertices_(std::move(vertices)), indices_(std::move(indices)) {
+  Mesh(
+      std::vector<Vertex> &&vertices,
+      std::vector<GLuint> &&indices,
+      bool issueRenderingAPICalls = true)
+      : vertices_(std::move(vertices)),
+        indices_(std::move(indices))
+  {
     if (issueRenderingAPICalls)
       init();
   }
-  Mesh(std::vector<Vertex> &&vertices, std::vector<GLuint> &&indices,
-       Material *material, bool issueRenderingAPICalls = true)
-      : vertices_(std::move(vertices)), indices_(std::move(indices)),
-        material_(material) {
+  Mesh(
+      std::vector<Vertex> &&vertices,
+      std::vector<GLuint> &&indices,
+      Material *material,
+      bool issueRenderingAPICalls = true)
+      : vertices_(std::move(vertices)),
+        indices_(std::move(indices)),
+        material_(material)
+  {
     if (issueRenderingAPICalls)
       init();
   }
   Mesh(const Mesh &mesh) = delete;
   Mesh(Mesh &&mesh) noexcept
-      : vao_(mesh.vao_), vbo_(mesh.vbo_), ebo_(mesh.ebo_),
+      : vao_(mesh.vao_),
+        vbo_(mesh.vbo_),
+        ebo_(mesh.ebo_),
         vertices_(std::move(mesh.vertices_)),
-        indices_(std::move(mesh.indices_)), material_(mesh.material_) {
+        indices_(std::move(mesh.indices_)),
+        material_(mesh.material_)
+  {
     mesh.vao_ = 0;
     mesh.vbo_ = 0;
     mesh.ebo_ = 0;
     mesh.material_ = nullptr;
   }
   Mesh &operator=(const Mesh &) = delete;
-  Mesh &operator=(Mesh &&mesh) noexcept {
+  Mesh &operator=(Mesh &&mesh) noexcept
+  {
     if (this == &mesh)
       return *this;
 
@@ -63,24 +79,31 @@ public:
 
     return *this;
   }
-  ~Mesh() { release(); }
+  ~Mesh()
+  {
+    release();
+  }
 
-  GLuint vao_{0}, vbo_{0}, ebo_{0};
+  GLuint vao_{ 0 }, vbo_{ 0 }, ebo_{ 0 };
   std::vector<Vertex> vertices_;
   std::vector<uint32_t> indices_;
-  Material *material_{nullptr};
+  Material *material_{ nullptr };
 
-  void complete() {
+  void complete()
+  {
     if (vao_)
       throw std::logic_error("Object is already complete!");
     init();
   }
-  void release() {
-    if (vao_) {
+  void release()
+  {
+    if (vao_)
+    {
       assert(vao_ && vbo_);
       glDeleteVertexArrays(1, &vao_);
       glDeleteBuffers(1, &vbo_);
-      if (ebo_) {
+      if (ebo_)
+      {
         glDeleteBuffers(1, &ebo_);
       }
       vao_ = 0;
@@ -89,7 +112,7 @@ public:
     }
   }
 
-private:
+ private:
   void init();
 };
-} // namespace Simple3D
+}  // namespace Simple3D
