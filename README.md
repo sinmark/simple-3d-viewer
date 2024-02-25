@@ -1,6 +1,8 @@
 # Simple 3D Viewer
 
 Simple 3D Viewer is meant to be a basic 3D viewer with a simple codebase.
+Previously this project was hosted on Gitlab:
+https://gitlab.com/sinisamarkovic/simple3dviewer.
 
 ## Features
 
