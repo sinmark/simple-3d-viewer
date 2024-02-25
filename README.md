@@ -12,13 +12,13 @@ Simple 3D Viewer is meant to be a basic 3D viewer with a simple codebase.
 
 ## Getting Started
 
-This section will show you how to build the viewer.
+This section will show you how to get the viewer up and running.
 
 ### Prerequisites
 
 You will need:
 
-- **CMake v3.15+** - found at [https://cmake.org/](https://cmake.org/)
+- **CMake** - found at [https://cmake.org/](https://cmake.org/)
 
 - **C++ Compiler** - needs to support at least the **C++20** standard, i.e.
   _MSVC_, _GCC_, _Clang_
@@ -37,7 +37,7 @@ git submodule update
 
 If you are using Visual Studio Code then you can use the CMakePresets.json to
 configure and build the project. Otherwise you can issue standard cmake
-commands:
+commands, example of these commands with ninja as the build system generator:
 
 ```
 mkdir build
@@ -45,4 +45,10 @@ cd build
 cmake .. -DCMAKE_BUILD_TYPE=Release -G Ninja
 ninja 
 ./bin/Release/Simple3DViewer
+```
+
+To apply clang-format issue the following command:
+
+```
+ninja clang-format
 ```
