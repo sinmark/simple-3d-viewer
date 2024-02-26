@@ -9,11 +9,11 @@ namespace Simple3D
 const GLuint screenTextureSlot = 4;
 
 static std::unordered_map<PostprocessID, Postprocess> createIDToPostprocessMap(
-    const std::vector<PostprocessID> &postprocessIDs)
+    const std::vector<PostprocessID>& postprocessIDs)
 {
   std::unordered_map<PostprocessID, Postprocess> idToPostprocess;
   const std::string vertexShaderFilename = "postprocess";
-  for (const auto &id : postprocessIDs)
+  for (const auto& id : postprocessIDs)
   {
     auto lowerCaseId = id;
     std::ranges::transform(
@@ -28,7 +28,7 @@ static std::unordered_map<PostprocessID, Postprocess> createIDToPostprocessMap(
 }
 
 PostprocessPipeline::PostprocessPipeline(
-    const std::vector<std::string> &postprocessIDs,
+    const std::vector<std::string>& postprocessIDs,
     Size size)
     : idToPostprocess_(createIDToPostprocessMap(postprocessIDs)),
       size_(size)
@@ -51,12 +51,12 @@ void PostprocessPipeline::init()
 
 void PostprocessPipeline::initPostprocesses()
 {
-  for (auto &[id, postprocess] : idToPostprocess_)
+  for (auto& [id, postprocess] : idToPostprocess_)
   {
     if (postprocess.program.hasUniform("inverseScreenSize"))
       postprocessesToUpdate_.push_back(&postprocess.program);
     postprocess.program.doOperations(
-        [](Program &program)
+        [](Program& program)
         { program.setInt("screenTexture", screenTextureSlot); });
   }
 }
@@ -128,10 +128,10 @@ void PostprocessPipeline::makeScreenQuad()
       GL_STATIC_DRAW);
 
   glEnableVertexAttribArray(0);
-  glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)0);
+  glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
   glEnableVertexAttribArray(1);
   glVertexAttribPointer(
-      1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)(2 * sizeof(float)));
+      1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
 
   glBindVertexArray(0);
   glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -161,7 +161,7 @@ void PostprocessPipeline::finalize()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glBindTexture(GL_TEXTURE_2D, colorBuffers_[i]);
-    postprocessesOrder_[i]->doOperations([](Program &program)
+    postprocessesOrder_[i]->doOperations([](Program& program)
                                          { glDrawArrays(GL_TRIANGLES, 0, 6); });
     ++colorBufferToUse;
   }
@@ -173,7 +173,7 @@ void PostprocessPipeline::finalize()
   glBindTexture(GL_TEXTURE_2D, colorBuffers_[colorBufferToUse]);
 
   postprocessesOrder_.back()->doOperations(
-      [](Program &program) { glDrawArrays(GL_TRIANGLES, 0, 6); });
+      [](Program& program) { glDrawArrays(GL_TRIANGLES, 0, 6); });
 
   glBindVertexArray(0);
   glBindTexture(GL_TEXTURE_2D, 0);
@@ -181,9 +181,9 @@ void PostprocessPipeline::finalize()
 
 void PostprocessPipeline::updatePostprocesses()
 {
-  for (Program *program : postprocessesToUpdate_)
+  for (Program* program : postprocessesToUpdate_)
     program->doOperations(
-        [size = size_](Program &program)
+        [size = size_](Program& program)
         {
           program.setVec3f(
               "inverseScreenSize",

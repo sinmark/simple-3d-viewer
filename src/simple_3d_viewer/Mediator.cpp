@@ -31,7 +31,7 @@ void Mediator::notify(GUIEvent e)
 
 void Mediator::processPostprocessesControlsChange()
 {
-  for (const auto &postprocessCheckbox :
+  for (const auto& postprocessCheckbox :
        imGuiWrapper_.getPostprocessesCheckboxes())
   {
     viewer_.setPostprocessActiveFlag(
@@ -41,7 +41,7 @@ void Mediator::processPostprocessesControlsChange()
 
 void Mediator::processLightingControlsChange()
 {
-  const auto &sliders = imGuiWrapper_.getLightControlsSliders();
+  const auto& sliders = imGuiWrapper_.getLightControlsSliders();
   const glm::vec3 lightPosition{ sliders[0].currentValue,
                                  sliders[1].currentValue,
                                  sliders[2].currentValue };
@@ -50,13 +50,13 @@ void Mediator::processLightingControlsChange()
 
 void Mediator::processVisualizeLightPositionCheckboxChange()
 {
-  const auto &checkboxes = imGuiWrapper_.getLightControlsCheckboxes();
+  const auto& checkboxes = imGuiWrapper_.getLightControlsCheckboxes();
   viewer_.renderer_.drawLight_ = checkboxes[0].value;
 }
 
 void Mediator::processModelControlsChange()
 {
-  const auto &sliders = imGuiWrapper_.getModelControlsSliders();
+  const auto& sliders = imGuiWrapper_.getModelControlsSliders();
   const glm::vec3 translation(
       sliders[0].currentValue,
       sliders[1].currentValue,
@@ -79,9 +79,9 @@ static const std::unordered_map<std::string, Model::Configuration::Flag>
 
 void Mediator::processModelLoadingConfigurationChange()
 {
-  const auto &modelLoadingConfigurationCheckboxes =
+  const auto& modelLoadingConfigurationCheckboxes =
       imGuiWrapper_.getModelLoadingConfigurationCheckboxes();
-  for (const auto &checkbox : modelLoadingConfigurationCheckboxes)
+  for (const auto& checkbox : modelLoadingConfigurationCheckboxes)
   {
     viewer_.modelConfig_.set(
         stringToModelConfigurationFlag.at(checkbox.text), checkbox.value);
@@ -90,7 +90,7 @@ void Mediator::processModelLoadingConfigurationChange()
 
 void Mediator::processCameraControlsChange()
 {
-  const auto &sliders = imGuiWrapper_.getCameraControlsSliders();
+  const auto& sliders = imGuiWrapper_.getCameraControlsSliders();
   viewer_.setCameraSettings(
       Camera::Settings{ sliders[0].currentValue, sliders[1].currentValue });
 }
@@ -118,7 +118,7 @@ void Mediator::notify(ViewerEvent e)
 
 void Mediator::processModelLoaded()
 {
-  const auto &sliders = imGuiWrapper_.getModelControlsSliders();
+  const auto& sliders = imGuiWrapper_.getModelControlsSliders();
   assert(sliders.size() == 9);
   const glm::vec3 translation(
       sliders[0].currentValue,
@@ -136,7 +136,7 @@ void Mediator::processModelLoaded()
 }
 
 // Viewer error handlers
-void Mediator::notify(ViewerError e, const std::string &errorMessage)
+void Mediator::notify(ViewerError e, const std::string& errorMessage)
 {
   switch (e)
   {

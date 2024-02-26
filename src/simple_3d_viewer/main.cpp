@@ -17,7 +17,7 @@ int main()
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
   const int initialScreenWidth = 800;
   const int initialScreenHeight = 600;
-  GLFWwindow *window = nullptr;
+  GLFWwindow* window = nullptr;
   window = glfwCreateWindow(
       initialScreenWidth,
       initialScreenHeight,

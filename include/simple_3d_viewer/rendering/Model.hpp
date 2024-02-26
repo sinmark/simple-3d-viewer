@@ -41,7 +41,7 @@ class Model
     unsigned int getEquivalentAssimpFlags() const
     {
       unsigned int flags = 0;
-      for (const auto &[flag, assimpFlag] : flagToAssimpFlag_)
+      for (const auto& [flag, assimpFlag] : flagToAssimpFlag_)
         flags = flags | (flags_[static_cast<uint32_t>(flag)] ? assimpFlag : 0);
       return flags;
     }
@@ -51,7 +51,7 @@ class Model
     static const std::unordered_map<Flag, aiPostProcessSteps> flagToAssimpFlag_;
   };
 
-  Model(const std::string &pathToFile, const Configuration &configuration)
+  Model(const std::string& pathToFile, const Configuration& configuration)
       : id_(idGenerator_++),
         configuration_(configuration)
   {
@@ -66,12 +66,12 @@ class Model
 
   void complete()
   {
-    for (auto &texture : textures_)
+    for (auto& texture : textures_)
       texture.complete();
-    for (auto &mesh : meshes_)
+    for (auto& mesh : meshes_)
       mesh.complete();
   }
-  void setTransform(const Transform &transform)
+  void setTransform(const Transform& transform)
   {
     transform_ = calculateModelTransform(transform);
   }
@@ -87,17 +87,17 @@ class Model
 
   static uint64_t idGenerator_;
 
-  void loadModel(const std::string &path);
-  void processMaterials(const aiScene *scene);
-  void processNode(aiNode *node, const aiScene *scene);
-  void loadMaterialTextures(aiMaterial *assimpMaterial);
+  void loadModel(const std::string& path);
+  void processMaterials(const aiScene* scene);
+  void processNode(aiNode* node, const aiScene* scene);
+  void loadMaterialTextures(aiMaterial* assimpMaterial);
   void loadMaterialTexturesOfType(
-      aiMaterial *assimpMaterial,
+      aiMaterial* assimpMaterial,
       aiTextureType type);
-  Material processMaterial(aiMaterial *assimpMaterial);
+  Material processMaterial(aiMaterial* assimpMaterial);
   std::vector<Material::TextureData> getBelongingTextures(
-      aiMaterial *assimpMaterial,
+      aiMaterial* assimpMaterial,
       aiTextureType type);
-  Mesh processMesh(aiMesh *assimpMesh, const aiScene *scene);
+  Mesh processMesh(aiMesh* assimpMesh, const aiScene* scene);
 };
 }  // namespace Simple3D

@@ -19,7 +19,7 @@ class Texture
 
  public:
   Texture() = delete;
-  Texture(const std::string &path, bool doOpenGLStuff = true)
+  Texture(const std::string& path, bool doOpenGLStuff = true)
       : type_(Type::Texture2D)
   {
     const int imagesCount = 1;
@@ -32,7 +32,7 @@ class Texture
     else
       loadData();
   }
-  Texture(const std::vector<std::string> &paths, bool doOpenGLStuff = true)
+  Texture(const std::vector<std::string>& paths, bool doOpenGLStuff = true)
       : paths_(paths),
         type_(Type::TextureCubeMap)
   {
@@ -46,8 +46,8 @@ class Texture
     else
       loadData();
   }
-  Texture(const Texture &) = delete;
-  Texture(Texture &&texture) noexcept
+  Texture(const Texture&) = delete;
+  Texture(Texture&& texture) noexcept
       : texture_(texture.texture_),
         paths_(std::move(texture.paths_)),
         widths_(std::move(texture.widths_)),
@@ -58,8 +58,8 @@ class Texture
   {
     texture.texture_ = 0;
   }
-  Texture &operator=(const Texture &) = delete;
-  Texture &operator=(Texture &&texture) noexcept
+  Texture& operator=(const Texture&) = delete;
+  Texture& operator=(Texture&& texture) noexcept
   {
     if (this == &texture)
       return *this;
@@ -106,11 +106,11 @@ class Texture
     }
   }
 
-  const std::string &getPath() const
+  const std::string& getPath() const
   {
     return paths_.front();
   }
-  const std::vector<std::string> &getPaths() const
+  const std::vector<std::string>& getPaths() const
   {
     return paths_;
   }
@@ -131,14 +131,14 @@ class Texture
   GLuint texture_ = 0;
   std::vector<std::string> paths_;
   std::vector<int> widths_, heights_, colorChannelsCounts_;
-  std::vector<uint8_t *> loadedImages_;
+  std::vector<uint8_t*> loadedImages_;
   Type type_;
 
   void init();
   void loadData();
   void loadTexture2DData();
   void loadTextureCubeMapData();
-  uint8_t *loadImageAtPath(int pathsIndex, bool flip = true);
+  uint8_t* loadImageAtPath(int pathsIndex, bool flip = true);
   void createTexture2D();
   void createTextureCubeMap();
 };

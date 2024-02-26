@@ -47,8 +47,8 @@ class ImGuiWrapper
   };
 
   ImGuiWrapper(
-      GLFWwindow *window,
-      const std::vector<std::string> &postprocesses);
+      GLFWwindow* window,
+      const std::vector<std::string>& postprocesses);
   ~ImGuiWrapper()
   {
     release();
@@ -66,49 +66,49 @@ class ImGuiWrapper
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
   }
-  void setMediator(Mediator *mediator)
+  void setMediator(Mediator* mediator)
   {
     mediator_ = mediator;
   }
   void sync();
 
  public:
-  const std::string &getSelectedFilePath() const
+  const std::string& getSelectedFilePath() const
   {
     return filePath_;
   }
-  const std::vector<Checkbox> &getPostprocessesCheckboxes() const
+  const std::vector<Checkbox>& getPostprocessesCheckboxes() const
   {
     return postprocessesCheckboxes_;
   }
-  const std::vector<Checkbox> &getLightControlsCheckboxes() const
+  const std::vector<Checkbox>& getLightControlsCheckboxes() const
   {
     return lightControlsCheckboxes_;
   }
-  const std::vector<Checkbox> &getModelLoadingConfigurationCheckboxes() const
+  const std::vector<Checkbox>& getModelLoadingConfigurationCheckboxes() const
   {
     return modelLoadingConfigurationCheckboxes_;
   }
-  const std::vector<Slider> &getLightControlsSliders() const
+  const std::vector<Slider>& getLightControlsSliders() const
   {
     return lightControlsSliders_;
   }
-  const std::vector<Slider> &getModelControlsSliders() const
+  const std::vector<Slider>& getModelControlsSliders() const
   {
     return modelTransformSliders_;
   }
-  const std::vector<Slider> &getCameraControlsSliders() const
+  const std::vector<Slider>& getCameraControlsSliders() const
   {
     return cameraControlsSliders_;
   }
-  void printError(const std::string &errorMessage)
+  void printError(const std::string& errorMessage)
   {
     cachedErrorMessage_ = errorMessage;
     ImGui::OpenPopup("errorPopup");
   }
 
  private:
-  Mediator *mediator_{ nullptr };
+  Mediator* mediator_{ nullptr };
   std::string filePath_;
   std::vector<Checkbox> postprocessesCheckboxes_;
   std::vector<Checkbox> lightControlsCheckboxes_;
@@ -119,7 +119,7 @@ class ImGuiWrapper
   bool synced_{ false };
   std::string cachedErrorMessage_;
 
-  void init(GLFWwindow *window);
+  void init(GLFWwindow* window);
   void drawSettingsWindow();
   void drawErrorPopup();
   void drawMainArea();

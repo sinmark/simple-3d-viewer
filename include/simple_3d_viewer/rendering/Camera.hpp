@@ -21,16 +21,16 @@ class Camera
   };
 
   Camera() = delete;
-  Camera(GLFWwindow *window) : window_(window)
+  Camera(GLFWwindow* window) : window_(window)
   {
     auto [width, height] = getFramebufferSize(window_);
     lastMouseX_ = width / 2.0;
     lastMouseY_ = height / 2.0;
   }
-  Camera(const Camera &) = delete;
-  Camera(Camera &&) = delete;
+  Camera(const Camera&) = delete;
+  Camera(Camera&&) = delete;
 
-  const glm::vec3 &getPosition() const
+  const glm::vec3& getPosition() const
   {
     return position_;
   }
@@ -46,7 +46,7 @@ class Camera
   void processInput(float delta);
 
  private:
-  GLFWwindow *window_{ nullptr };
+  GLFWwindow* window_{ nullptr };
   glm::vec3 position_{ 0.f, 0.f, 5.f };
   glm::vec3 orientation_{ 0.f, 0.f, -1.f };
   glm::vec3 up_{ 0.f, 1.f, 0.f };

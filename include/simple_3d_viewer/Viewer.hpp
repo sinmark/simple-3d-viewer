@@ -29,10 +29,10 @@ class Viewer
     virtual ~Mediator() = default;
 
     virtual void notify(Event e) = 0;
-    virtual void notify(Error e, const std::string &errorMessage) = 0;
+    virtual void notify(Error e, const std::string& errorMessage) = 0;
   };
 
-  Viewer(GLFWwindow *window, const std::vector<std::string> &postprocessIDs);
+  Viewer(GLFWwindow* window, const std::vector<std::string>& postprocessIDs);
 
   Scene scene_;
   Renderer renderer_;
@@ -43,11 +43,11 @@ class Viewer
     scene_.camera.processInput(delta);
   }
   void render();
-  void setPostprocessActiveFlag(const std::string &ID, bool active)
+  void setPostprocessActiveFlag(const std::string& ID, bool active)
   {
     renderer_.postprocessPipeline_.setPostprocessActiveFlag(ID, active);
   }
-  void loadModel(const std::string &pathToModel)
+  void loadModel(const std::string& pathToModel)
   {
     if (scene_.model)
       scene_.model.reset();
@@ -56,7 +56,7 @@ class Viewer
         [pathToModel, modelConfig = modelConfig_]()
         { return Model(pathToModel, modelConfig); });
   }
-  void setModelTransform(const Transform &transform)
+  void setModelTransform(const Transform& transform)
   {
     if (scene_.model)
       scene_.model->setTransform(transform);
@@ -66,15 +66,15 @@ class Viewer
     scene_.camera.setSettings(settings);
   }
   void reloadProgram();
-  void setMediator(Mediator *mediator)
+  void setMediator(Mediator* mediator)
   {
     mediator_ = mediator;
   }
 
  private:
-  GLFWwindow *window_;
+  GLFWwindow* window_;
   std::future<Model> modelFuture_;
-  Mediator *mediator_{ nullptr };
+  Mediator* mediator_{ nullptr };
 
   void init();
   void isModelLoaded();

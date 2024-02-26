@@ -5,8 +5,8 @@
 namespace Simple3D
 {
 Viewer::Viewer(
-    GLFWwindow *window,
-    const std::vector<std::string> &postprocessIDs)
+    GLFWwindow* window,
+    const std::vector<std::string>& postprocessIDs)
     : window_(window),
       scene_(window),
       renderer_(window, postprocessIDs)
@@ -17,7 +17,7 @@ Viewer::Viewer(
 void Viewer::init()
 {
   // Skybox initialization
-  scene_.skyboxProgram.doOperations([](Program &program)
+  scene_.skyboxProgram.doOperations([](Program& program)
                                     { program.setInt("skybox", 0); });
 
   // Model initialization
@@ -45,7 +45,7 @@ void Viewer::reloadProgram()
   {
     scene_.modelProgram = Program(modelProgramFilename);
   }
-  catch (std::invalid_argument &e)
+  catch (std::invalid_argument& e)
   {
     mediator_->notify(Error::ReloadProgram, e.what());
   }
@@ -64,7 +64,7 @@ void Viewer::isModelLoaded()
       assert(mediator_);
       mediator_->notify(Event::ModelLoaded);
     }
-    catch (std::invalid_argument &e)
+    catch (std::invalid_argument& e)
     {
       mediator_->notify(Error::LoadModel, e.what());
     }

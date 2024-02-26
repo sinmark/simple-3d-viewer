@@ -14,17 +14,17 @@ class Material
  public:
   struct TextureData
   {
-    Texture *texture;
+    Texture* texture;
     std::optional<int> uvChannel;
   };
 
   Material(
-      std::vector<TextureData> &&diffuseTextures,
-      std::vector<TextureData> &&specularTextures,
-      std::vector<TextureData> &&emissiveTextures,
-      std::vector<TextureData> &&normalsTextures,
-      std::vector<TextureData> &&metalnessTextures,
-      std::vector<TextureData> &&diffuseRoughnessTextures)
+      std::vector<TextureData>&& diffuseTextures,
+      std::vector<TextureData>&& specularTextures,
+      std::vector<TextureData>&& emissiveTextures,
+      std::vector<TextureData>&& normalsTextures,
+      std::vector<TextureData>&& metalnessTextures,
+      std::vector<TextureData>&& diffuseRoughnessTextures)
       : diffuseTextures_(std::move(diffuseTextures)),
         specularTextures_(std::move(specularTextures)),
         emissiveTextures_(std::move(emissiveTextures)),
@@ -43,7 +43,7 @@ class Material
   float shininess{ 0.f };
   float shininessStrength{ 1.f };
 
-  void use(Program &program);
+  void use(Program& program);
   uint64_t getID() const
   {
     return id_;
@@ -60,7 +60,7 @@ class Material
 
   static uint64_t idGenerator_;
 
-  void prepareTexturesForUse(Program &program);
-  void setUniforms(Program &program);
+  void prepareTexturesForUse(Program& program);
+  void setUniforms(Program& program);
 };
 }  // namespace Simple3D

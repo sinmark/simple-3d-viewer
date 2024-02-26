@@ -3,7 +3,7 @@
 
 namespace Simple3D
 {
-void Renderer::render(Scene &scene)
+void Renderer::render(Scene& scene)
 {
   performCacheChecks(scene);
   postprocessPipeline_.start();
@@ -19,9 +19,9 @@ void Renderer::render(Scene &scene)
   postprocessPipeline_.finalize();
 }
 
-void Renderer::performCacheChecks(Scene &scene)
+void Renderer::performCacheChecks(Scene& scene)
 {
-  auto &modelProgramUniformsCache = cache_.modelProgramUniformsCache;
+  auto& modelProgramUniformsCache = cache_.modelProgramUniformsCache;
   const auto size = getFramebufferSize(window_);
   const auto projection = calculateProjectionTransform(size);
   const auto view = scene.camera.getViewTransform();
@@ -44,15 +44,15 @@ void Renderer::performCacheChecks(Scene &scene)
       {
         const auto projectionView = projection * view;
         scene.modelProgram.doOperations(
-            [&projectionView](Program &program)
+            [&projectionView](Program& program)
             { program.setMat4f("pv", projectionView); });
         scene.lightProgram.doOperations(
-            [&projectionView](Program &program)
+            [&projectionView](Program& program)
             { program.setMat4f("pv", projectionView); });
         const auto viewWithoutTranslation = glm::mat4(glm::mat3(view));
         const auto projectionModifiedView = projection * viewWithoutTranslation;
         scene.skyboxProgram.doOperations(
-            [&projectionModifiedView](Program &program)
+            [&projectionModifiedView](Program& program)
             { program.setMat4f("pv", projectionModifiedView); });
       });
   modelProgramUniformsCache.cameraPosition.update(
@@ -60,7 +60,7 @@ void Renderer::performCacheChecks(Scene &scene)
       [&scene]()
       {
         scene.modelProgram.doOperations(
-            [&cameraPosition = scene.camera.getPosition()](Program &program)
+            [&cameraPosition = scene.camera.getPosition()](Program& program)
             { program.setVec3f("cameraPosition", cameraPosition); });
       });
   modelProgramUniformsCache.lightPosition.update(
@@ -68,10 +68,10 @@ void Renderer::performCacheChecks(Scene &scene)
       [&scene]()
       {
         scene.modelProgram.doOperations(
-            [&lightPosition = scene.lightPosition](Program &program)
+            [&lightPosition = scene.lightPosition](Program& program)
             { program.setVec3f("lightPosition", lightPosition); });
         scene.lightProgram.doOperations(
-            [&lightPosition = scene.lightPosition](Program &program)
+            [&lightPosition = scene.lightPosition](Program& program)
             {
               const auto model =
                   glm::translate(glm::mat4x4(1.0), lightPosition);
@@ -85,22 +85,22 @@ void Renderer::performCacheChecks(Scene &scene)
         [&program = scene.modelProgram, &model = scene.model.value()]()
         {
           program.doOperations(
-              [&modelTransform = model.transform_](Program &program)
+              [&modelTransform = model.transform_](Program& program)
               { program.setMat4f("model", modelTransform); });
         });
   }
 }
 
-void Renderer::render(Model &model, Program &program)
+void Renderer::render(Model& model, Program& program)
 {
-  for (auto &mesh : model.meshes_)
+  for (auto& mesh : model.meshes_)
     render(mesh, program);
 }
 
 void Renderer::renderSkybox(
-    Mesh &skybox,
-    Program &skyboxProgram,
-    Texture &skyboxTexture)
+    Mesh& skybox,
+    Program& skyboxProgram,
+    Texture& skyboxTexture)
 {
   glDepthFunc(GL_LEQUAL);
   skyboxTexture.use(0);
@@ -108,7 +108,7 @@ void Renderer::renderSkybox(
   glDepthFunc(GL_LESS);
 }
 
-static inline void drawPrimitives(Mesh &mesh)
+static inline void drawPrimitives(Mesh& mesh)
 {
   assert(mesh.vao_);
   glBindVertexArray(mesh.vao_);
@@ -125,18 +125,18 @@ static inline void drawPrimitives(Mesh &mesh)
   glBindVertexArray(0);
 }
 
-void Renderer::render(Mesh &mesh, Program &program)
+void Renderer::render(Mesh& mesh, Program& program)
 {
   assert(mesh.vao_);
   if (!mesh.material_)
   {
-    program.doOperations([&mesh](Program &program) { drawPrimitives(mesh); });
+    program.doOperations([&mesh](Program& program) { drawPrimitives(mesh); });
     return;
   }
 
   cache_.modelProgramUniformsCache.materialID.update(
       mesh.material_->getID(),
       [&mesh, &program]() { mesh.material_->use(program); });
-  program.doOperations([&mesh](Program &program) { drawPrimitives(mesh); });
+  program.doOperations([&mesh](Program& program) { drawPrimitives(mesh); });
 }
 }  // namespace Simple3D

@@ -24,10 +24,10 @@ class PostprocessPipeline
   using OnResizeFunction = std::function<void(Size)>;
 
   PostprocessPipeline(
-      const std::vector<PostprocessID> &postprocessIDs,
+      const std::vector<PostprocessID>& postprocessIDs,
       Size size);
-  PostprocessPipeline(const PostprocessPipeline &) = delete;
-  PostprocessPipeline(PostprocessPipeline &&postprocessPipeline) noexcept
+  PostprocessPipeline(const PostprocessPipeline&) = delete;
+  PostprocessPipeline(PostprocessPipeline&& postprocessPipeline) noexcept
       : idToPostprocess_(std::move(postprocessPipeline.idToPostprocess_)),
         postprocessesOrder_(std::move(postprocessPipeline.postprocessesOrder_)),
         postprocessesToUpdate_(
@@ -42,8 +42,8 @@ class PostprocessPipeline
     postprocessPipeline.screenQuadVBO_ = 0;
     postprocessPipeline.screenQuadVAO_ = 0;
   }
-  PostprocessPipeline &operator=(const PostprocessPipeline &) = delete;
-  PostprocessPipeline &operator=(PostprocessPipeline &&) = delete;
+  PostprocessPipeline& operator=(const PostprocessPipeline&) = delete;
+  PostprocessPipeline& operator=(PostprocessPipeline&&) = delete;
   ~PostprocessPipeline()
   {
     release();
@@ -51,14 +51,14 @@ class PostprocessPipeline
 
   void start();
   void finalize();
-  void setPostprocessActiveFlag(const std::string &id, bool active)
+  void setPostprocessActiveFlag(const std::string& id, bool active)
   {
-    auto &postprocess = idToPostprocess_.at(id);
+    auto& postprocess = idToPostprocess_.at(id);
     if (postprocess.active == active)
       return;
     postprocess.active = active;
 
-    Program *program = &postprocess.program;
+    Program* program = &postprocess.program;
     if (postprocess.active)
       postprocessesOrder_.push_back(program);
     else
@@ -84,8 +84,8 @@ class PostprocessPipeline
 
  private:
   std::unordered_map<PostprocessID, Postprocess> idToPostprocess_;
-  std::vector<Program *> postprocessesOrder_;
-  std::vector<Program *> postprocessesToUpdate_;
+  std::vector<Program*> postprocessesOrder_;
+  std::vector<Program*> postprocessesToUpdate_;
   Size size_;
   std::vector<GLuint> framebuffers_;
   std::vector<GLuint> colorBuffers_;

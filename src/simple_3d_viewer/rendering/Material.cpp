@@ -4,48 +4,48 @@ namespace Simple3D
 {
 uint64_t Material::idGenerator_ = 0;
 
-void Material::use(Program &program)
+void Material::use(Program& program)
 {
   prepareTexturesForUse(program);
   setUniforms(program);
 }
 
 static inline void setSamplerUniform(
-    Program &program,
-    const std::string &uniformNameBase,
+    Program& program,
+    const std::string& uniformNameBase,
     uint32_t concatNumber,
     uint32_t slot)
 {
   const std::string uniformName =
       uniformNameBase + std::to_string(concatNumber);
-  program.doOperations([&uniformName, slot](Program &program)
+  program.doOperations([&uniformName, slot](Program& program)
                        { program.setInt(uniformName, slot); });
 }
 
 static inline void setUVChannelUniform(
-    Program &program,
-    const std::string &uniformNameBase,
+    Program& program,
+    const std::string& uniformNameBase,
     uint32_t concatNumber,
-    const std::optional<int> &uvChannel)
+    const std::optional<int>& uvChannel)
 {
   const int uvChannelValue = uvChannel.value_or(concatNumber);
   const std::string uniformName =
       uniformNameBase + std::to_string(concatNumber);
-  program.doOperations([&uniformName, uvChannelValue](Program &program)
+  program.doOperations([&uniformName, uvChannelValue](Program& program)
                        { program.setInt(uniformName, uvChannelValue); });
 }
 
 static void assignSlotsToTextures(
-    std::vector<Material::TextureData> &textures,
-    const std::string &texturesType,
-    Program &program,
-    uint32_t &slotToAssign)
+    std::vector<Material::TextureData>& textures,
+    const std::string& texturesType,
+    Program& program,
+    uint32_t& slotToAssign)
 {
   const size_t texturesCount = textures.size();
   for (uint32_t i = 0; i < texturesCount; ++i)
   {
     uint32_t slot = slotToAssign++;
-    auto &textureData = textures[i];
+    auto& textureData = textures[i];
     textureData.texture->use(slot);
     setSamplerUniform(program, texturesType + "Texture", i, slot);
     setUVChannelUniform(
@@ -53,7 +53,7 @@ static void assignSlotsToTextures(
   }
 }
 
-void Material::prepareTexturesForUse(Program &program)
+void Material::prepareTexturesForUse(Program& program)
 {
   uint32_t slotToAssign = 0;
   assignSlotsToTextures(diffuseTextures_, "diffuse", program, slotToAssign);
@@ -65,10 +65,10 @@ void Material::prepareTexturesForUse(Program &program)
       diffuseRoughnessTextures_, "diffuseRoughness", program, slotToAssign);
 }
 
-void Material::setUniforms(Program &program)
+void Material::setUniforms(Program& program)
 {
   program.doOperations(
-      [this](Program &program)
+      [this](Program& program)
       {
         program.setVec3f("ambientColor", ambientColor);
         program.setVec3f("diffuseColor", diffuseColor);

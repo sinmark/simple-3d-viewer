@@ -20,6 +20,8 @@ SpaceBeforeParens: ControlStatements
 SpaceBeforeRangeBasedForLoopColon: 'true'
 SpaceInEmptyBlock: true
 Standard: 'Latest'
+DerivePointerAlignment: false
+PointerAlignment: Left
 IncludeCategories:
   - Regex:           '^<glad/glad.h>'
     Priority:        1

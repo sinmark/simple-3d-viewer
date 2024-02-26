@@ -14,10 +14,10 @@ const std::unordered_map<Model::Configuration::Flag, aiPostProcessSteps>
       { Configuration::Flag::FlipUVs, aiPostProcessSteps::aiProcess_FlipUVs }
     };
 
-void Model::loadModel(const std::string &path)
+void Model::loadModel(const std::string& path)
 {
   Assimp::Importer importer;
-  const aiScene *scene = importer.ReadFile(
+  const aiScene* scene = importer.ReadFile(
       path,
       aiProcess_Triangulate | aiProcess_GenSmoothNormals |
           aiProcess_CalcTangentSpace | aiProcess_PreTransformVertices |
@@ -35,28 +35,28 @@ void Model::loadModel(const std::string &path)
   processNode(scene->mRootNode, scene);
 }
 
-void Model::processMaterials(const aiScene *scene)
+void Model::processMaterials(const aiScene* scene)
 {
   const uint32_t materialsCount = scene->mNumMaterials;
   materials_.reserve(materialsCount);
   for (uint32_t i = 0; i < materialsCount; ++i)
   {
-    aiMaterial *assimpMaterial = scene->mMaterials[i];
+    aiMaterial* assimpMaterial = scene->mMaterials[i];
     loadMaterialTextures(assimpMaterial);
   }
   for (uint32_t i = 0; i < materialsCount; ++i)
   {
-    aiMaterial *assimpMaterial = scene->mMaterials[i];
+    aiMaterial* assimpMaterial = scene->mMaterials[i];
     materials_.emplace_back(processMaterial(assimpMaterial));
   }
 }
 
-void Model::processNode(aiNode *node, const aiScene *scene)
+void Model::processNode(aiNode* node, const aiScene* scene)
 {
   const uint32_t meshesCount = node->mNumMeshes;
   for (uint32_t i = 0; i < node->mNumMeshes; ++i)
   {
-    aiMesh *assimpMesh = scene->mMeshes[node->mMeshes[i]];
+    aiMesh* assimpMesh = scene->mMeshes[node->mMeshes[i]];
     meshes_.emplace_back(processMesh(assimpMesh, scene));
   }
   const uint32_t childrenCount = node->mNumChildren;
@@ -66,7 +66,7 @@ void Model::processNode(aiNode *node, const aiScene *scene)
   }
 }
 
-void Model::loadMaterialTextures(aiMaterial *assimpMaterial)
+void Model::loadMaterialTextures(aiMaterial* assimpMaterial)
 {
   loadMaterialTexturesOfType(assimpMaterial, aiTextureType_DIFFUSE);
   loadMaterialTexturesOfType(assimpMaterial, aiTextureType_SPECULAR);
@@ -76,7 +76,7 @@ void Model::loadMaterialTextures(aiMaterial *assimpMaterial)
   loadMaterialTexturesOfType(assimpMaterial, aiTextureType_DIFFUSE_ROUGHNESS);
 }
 
-Material Model::processMaterial(aiMaterial *assimpMaterial)
+Material Model::processMaterial(aiMaterial* assimpMaterial)
 {
   std::vector<Material::TextureData> diffuseTextures =
       getBelongingTextures(assimpMaterial, aiTextureType_DIFFUSE);
@@ -126,7 +126,7 @@ Material Model::processMaterial(aiMaterial *assimpMaterial)
 }
 
 void Model::loadMaterialTexturesOfType(
-    aiMaterial *assimpMaterial,
+    aiMaterial* assimpMaterial,
     aiTextureType type)
 {
   const uint32_t texturesCount = assimpMaterial->GetTextureCount(type);
@@ -141,7 +141,7 @@ void Model::loadMaterialTexturesOfType(
     const auto it = std::find_if(
         textures_.begin(),
         textures_.end(),
-        [&pathToTexture](const Texture &texture)
+        [&pathToTexture](const Texture& texture)
         { return pathToTexture == texture.getPath(); });
     if (it != textures_.end())
       continue;
@@ -152,7 +152,7 @@ void Model::loadMaterialTexturesOfType(
 }
 
 std::vector<Material::TextureData> Model::getBelongingTextures(
-    aiMaterial *assimpMaterial,
+    aiMaterial* assimpMaterial,
     aiTextureType type)
 {
   std::vector<Material::TextureData> textures;
@@ -168,11 +168,11 @@ std::vector<Material::TextureData> Model::getBelongingTextures(
     const auto it = std::find_if(
         textures_.begin(),
         textures_.end(),
-        [&pathToTexture](const Texture &texture)
+        [&pathToTexture](const Texture& texture)
         { return pathToTexture == texture.getPath(); });
     assert(it != textures_.end());
     int uvChannel;
-    auto &texture = *it;
+    auto& texture = *it;
     if (assimpMaterial->Get(AI_MATKEY_UVWSRC(type, i), uvChannel) == AI_SUCCESS)
       textures.push_back(
           { &texture,
@@ -184,14 +184,14 @@ std::vector<Material::TextureData> Model::getBelongingTextures(
   return textures;
 }
 
-Mesh Model::processMesh(aiMesh *assimpMeshPtr, const aiScene *scene)
+Mesh Model::processMesh(aiMesh* assimpMeshPtr, const aiScene* scene)
 {
   assert(assimpMeshPtr != nullptr);
 
   std::vector<Vertex> vertices;
   std::vector<GLuint> indices;
-  Material *material = nullptr;
-  const auto &assimpMesh = *assimpMeshPtr;
+  Material* material = nullptr;
+  const auto& assimpMesh = *assimpMeshPtr;
 
   const size_t uvChannelsCount = assimpMesh.GetNumUVChannels();
   const size_t uvChannelsCountClamped = std::clamp(
@@ -233,7 +233,7 @@ Mesh Model::processMesh(aiMesh *assimpMeshPtr, const aiScene *scene)
   const size_t facesCount = assimpMesh.mNumFaces;
   for (size_t i = 0; i < facesCount; i++)
   {
-    const aiFace &assimpFace = assimpMesh.mFaces[i];
+    const aiFace& assimpFace = assimpMesh.mFaces[i];
     for (size_t j = 0; j < assimpFace.mNumIndices; ++j)
     {
       indices.push_back(assimpFace.mIndices[j]);
@@ -242,7 +242,7 @@ Mesh Model::processMesh(aiMesh *assimpMeshPtr, const aiScene *scene)
 
   if (assimpMesh.mMaterialIndex >= 0)
   {
-    aiMaterial *aimaterial = scene->mMaterials[assimpMesh.mMaterialIndex];
+    aiMaterial* aimaterial = scene->mMaterials[assimpMesh.mMaterialIndex];
     material = &materials_[assimpMesh.mMaterialIndex];
   }
 

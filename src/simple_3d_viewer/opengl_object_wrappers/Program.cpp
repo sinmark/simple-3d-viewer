@@ -18,7 +18,7 @@ constexpr GLint invalidLocation = -1;
 
 // The function call filesystem::current_path() can throw so we can't make
 // shaderDirPath global and initialize it at the same time.
-std::filesystem::path &shaderDirPath()
+std::filesystem::path& shaderDirPath()
 {
   static auto result = std::filesystem::current_path() / "res/shaders/";
   return result;
@@ -41,7 +41,7 @@ std::optional<std::string> getCompilationErrorMessage(GLuint shader)
   return {};
 }
 
-void printInvalidUniform(const std::string &name)
+void printInvalidUniform(const std::string& name)
 {
   const std::string log = std::string(errorPrefix) + "Uniform '" + name +
                           "' doesn't exist! Might have been optimized out!";
@@ -49,13 +49,13 @@ void printInvalidUniform(const std::string &name)
 }
 
 GLuint linkProgram(
-    const std::string &vertexShader,
-    const std::string &fragmentShader)
+    const std::string& vertexShader,
+    const std::string& fragmentShader)
 {
   const GLuint programHandle = glCreateProgram();
 
   const auto vertexShaderHandle = glCreateShader(GL_VERTEX_SHADER);
-  const auto *vertexShaderPtr = vertexShader.c_str();
+  const auto* vertexShaderPtr = vertexShader.c_str();
   glShaderSource(vertexShaderHandle, 1, &vertexShaderPtr, nullptr);
   glCompileShader(vertexShaderHandle);
   if (const auto maybeErrorMessage =
@@ -69,7 +69,7 @@ GLuint linkProgram(
   glAttachShader(programHandle, vertexShaderHandle);
 
   const auto fragmentShaderHandle = glCreateShader(GL_FRAGMENT_SHADER);
-  const auto *fragmentShaderPtr = fragmentShader.c_str();
+  const auto* fragmentShaderPtr = fragmentShader.c_str();
   glShaderSource(fragmentShaderHandle, 1, &fragmentShaderPtr, nullptr);
   glCompileShader(fragmentShaderHandle);
   if (const auto maybeErrorMessage =
@@ -85,7 +85,7 @@ GLuint linkProgram(
 
   glLinkProgram(programHandle);
   GLint linked = 0;
-  glGetProgramiv(programHandle, GL_LINK_STATUS, (int *)&linked);
+  glGetProgramiv(programHandle, GL_LINK_STATUS, (int*)&linked);
   if (linked == 0)
   {
     GLint maxLength = 0;
@@ -112,8 +112,8 @@ GLuint linkProgram(
 }  // namespace
 
 Program::Program(
-    const std::string &vertexShaderFileName,
-    const std::string &fragmentShaderFileName)
+    const std::string& vertexShaderFileName,
+    const std::string& fragmentShaderFileName)
     : programHandle_(linkProgram(
           loadFileIntoString(shaderDirPath() / (vertexShaderFileName + ".vs")),
           loadFileIntoString(
@@ -122,12 +122,12 @@ Program::Program(
 {
 }
 
-Program::Program(const std::string &commonShaderFileName)
+Program::Program(const std::string& commonShaderFileName)
     : Program(commonShaderFileName, commonShaderFileName)
 {
 }
 
-Program &Program::operator=(Program &&other) noexcept
+Program& Program::operator=(Program&& other) noexcept
 {
   if (this == &other)
   {
@@ -143,7 +143,7 @@ Program &Program::operator=(Program &&other) noexcept
   return *this;
 }
 
-Program::Program(Program &&other) noexcept
+Program::Program(Program&& other) noexcept
     : programHandle_(other.programHandle_),
       id_(other.id_),
       uniformLocationCache_(std::move(other.uniformLocationCache_))
@@ -165,7 +165,7 @@ void Program::release()
   programHandle_ = 0;
 }
 
-void Program::doOperations(const std::function<void(Program &)> &operations)
+void Program::doOperations(const std::function<void(Program&)>& operations)
 {
   glUseProgram(programHandle_);
   operations(*this);
@@ -175,9 +175,9 @@ void Program::doOperations(const std::function<void(Program &)> &operations)
 namespace
 {
 GLint getUniformLocation(
-    const std::string &name,
+    const std::string& name,
     GLuint programHandle,
-    std::unordered_map<std::string, GLint> &uniformLocationCache)
+    std::unordered_map<std::string, GLint>& uniformLocationCache)
 {
   if (uniformLocationCache.contains(name))
   {
@@ -195,7 +195,7 @@ GLint getUniformLocation(
 }
 }  // namespace
 
-void Program::setInt(const std::string &name, int value)
+void Program::setInt(const std::string& name, int value)
 {
   const GLint location =
       getUniformLocation(name, programHandle_, uniformLocationCache_);
@@ -206,7 +206,7 @@ void Program::setInt(const std::string &name, int value)
   glUniform1i(location, value);
 }
 
-void Program::setFloat(const std::string &name, float value)
+void Program::setFloat(const std::string& name, float value)
 {
   const GLint location =
       getUniformLocation(name, programHandle_, uniformLocationCache_);
@@ -217,7 +217,7 @@ void Program::setFloat(const std::string &name, float value)
   glUniform1f(location, value);
 }
 
-void Program::setVec2f(const std::string &name, const glm::vec2 &vector)
+void Program::setVec2f(const std::string& name, const glm::vec2& vector)
 {
   const GLint location =
       getUniformLocation(name, programHandle_, uniformLocationCache_);
@@ -228,7 +228,7 @@ void Program::setVec2f(const std::string &name, const glm::vec2 &vector)
   glUniform2f(location, vector[0], vector[1]);
 }
 
-void Program::setVec2f(const std::string &name, float v0, float v1)
+void Program::setVec2f(const std::string& name, float v0, float v1)
 {
   const GLint location =
       getUniformLocation(name, programHandle_, uniformLocationCache_);
@@ -239,7 +239,7 @@ void Program::setVec2f(const std::string &name, float v0, float v1)
   glUniform2f(location, v0, v1);
 }
 
-void Program::setVec3f(const std::string &name, const glm::vec3 &vector)
+void Program::setVec3f(const std::string& name, const glm::vec3& vector)
 {
   const GLint location =
       getUniformLocation(name, programHandle_, uniformLocationCache_);
@@ -250,7 +250,7 @@ void Program::setVec3f(const std::string &name, const glm::vec3 &vector)
   glUniform3f(location, vector[0], vector[1], vector[2]);
 }
 
-void Program::setVec3f(const std::string &name, float v0, float v1, float v2)
+void Program::setVec3f(const std::string& name, float v0, float v1, float v2)
 {
   const GLint location =
       getUniformLocation(name, programHandle_, uniformLocationCache_);
@@ -261,7 +261,7 @@ void Program::setVec3f(const std::string &name, float v0, float v1, float v2)
   glUniform3f(location, v0, v1, v2);
 }
 
-void Program::setVec4f(const std::string &name, const glm::vec4 &vector)
+void Program::setVec4f(const std::string& name, const glm::vec4& vector)
 {
   const GLint location =
       getUniformLocation(name, programHandle_, uniformLocationCache_);
@@ -273,7 +273,7 @@ void Program::setVec4f(const std::string &name, const glm::vec4 &vector)
 }
 
 void Program::setVec4f(
-    const std::string &name,
+    const std::string& name,
     float v0,
     float v1,
     float v2,
@@ -288,7 +288,7 @@ void Program::setVec4f(
   glUniform4f(location, v0, v1, v2, v3);
 }
 
-void Program::setMat4f(const std::string &name, const glm::mat4 &matrix)
+void Program::setMat4f(const std::string& name, const glm::mat4& matrix)
 {
   const GLint location =
       getUniformLocation(name, programHandle_, uniformLocationCache_);
@@ -299,7 +299,7 @@ void Program::setMat4f(const std::string &name, const glm::mat4 &matrix)
   glUniformMatrix4fv(location, 1, GL_FALSE, &matrix[0][0]);
 }
 
-bool Program::hasUniform(const std::string &name) const
+bool Program::hasUniform(const std::string& name) const
 {
   if (uniformLocationCache_.contains(name))
   {

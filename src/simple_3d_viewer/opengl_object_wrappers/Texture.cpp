@@ -42,11 +42,11 @@ void Texture::loadTextureCubeMapData()
     loadedImages_.push_back(loadImageAtPath(i, false));
 }
 
-uint8_t *Texture::loadImageAtPath(int pathsIndex, bool flip)
+uint8_t* Texture::loadImageAtPath(int pathsIndex, bool flip)
 {
   if (flip)
     stbi_set_flip_vertically_on_load(1);
-  uint8_t *loadedImage = stbi_load(
+  uint8_t* loadedImage = stbi_load(
       (paths_[pathsIndex]).c_str(),
       &widths_[pathsIndex],
       &heights_[pathsIndex],

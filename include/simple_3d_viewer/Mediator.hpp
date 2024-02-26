@@ -12,7 +12,7 @@ class Mediator : public ImGuiWrapper::Mediator, public Viewer::Mediator
   using ViewerEvent = Viewer::Event;
   using ViewerError = Viewer::Error;
 
-  Mediator(ImGuiWrapper &imGuiWrapper, Viewer &viewer)
+  Mediator(ImGuiWrapper& imGuiWrapper, Viewer& viewer)
       : imGuiWrapper_(imGuiWrapper),
         viewer_(viewer)
   {
@@ -22,11 +22,11 @@ class Mediator : public ImGuiWrapper::Mediator, public Viewer::Mediator
 
   void notify(GUIEvent e) override;
   void notify(ViewerEvent e) override;
-  void notify(ViewerError e, const std::string &errorMessage) override;
+  void notify(ViewerError e, const std::string& errorMessage) override;
 
  private:
-  Viewer &viewer_;
-  ImGuiWrapper &imGuiWrapper_;
+  Viewer& viewer_;
+  ImGuiWrapper& imGuiWrapper_;
 
   // GUI event handlers
   void processPostprocessesControlsChange();

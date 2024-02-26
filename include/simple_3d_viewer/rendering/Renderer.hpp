@@ -15,7 +15,7 @@ namespace Simple3D
 class Renderer
 {
  public:
-  Renderer(GLFWwindow *window, const std::vector<PostprocessID> &postprocessIDs)
+  Renderer(GLFWwindow* window, const std::vector<PostprocessID>& postprocessIDs)
       : window_(window),
         postprocessPipeline_(postprocessIDs, getFramebufferSize(window))
   {
@@ -24,7 +24,7 @@ class Renderer
   PostprocessPipeline postprocessPipeline_;
   bool drawLight_{ true };
 
-  void render(Scene &scene);
+  void render(Scene& scene);
 
  private:
   template<typename T>
@@ -34,8 +34,8 @@ class Renderer
     bool changed;
 
     void update(
-        const T &newValue,
-        const std::function<void()> &operationsBeforeUpdate)
+        const T& newValue,
+        const std::function<void()>& operationsBeforeUpdate)
     {
       if (changed = value != newValue; !changed)
         return;
@@ -79,12 +79,12 @@ class Renderer
     CachePair<Size> framebufferSize{};
   };
   Cache cache_;
-  GLFWwindow *window_;
+  GLFWwindow* window_;
 
-  void performCacheChecks(Scene &scene);
-  void render(Model &model, Program &program);
-  void render(Mesh &mesh, Program &program);
+  void performCacheChecks(Scene& scene);
+  void render(Model& model, Program& program);
+  void render(Mesh& mesh, Program& program);
   void
-  renderSkybox(Mesh &skybox, Program &skyboxProgram, Texture &skyboxTexture);
+  renderSkybox(Mesh& skybox, Program& skyboxProgram, Texture& skyboxTexture);
 };
 }  // namespace Simple3D

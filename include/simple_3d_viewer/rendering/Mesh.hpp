@@ -20,15 +20,15 @@ class Mesh
 {
  public:
   Mesh() = delete;
-  Mesh(std::vector<Vertex> &&vertices, bool issueRenderingAPICalls = true)
+  Mesh(std::vector<Vertex>&& vertices, bool issueRenderingAPICalls = true)
       : vertices_(std::move(vertices))
   {
     if (issueRenderingAPICalls)
       init();
   }
   Mesh(
-      std::vector<Vertex> &&vertices,
-      std::vector<GLuint> &&indices,
+      std::vector<Vertex>&& vertices,
+      std::vector<GLuint>&& indices,
       bool issueRenderingAPICalls = true)
       : vertices_(std::move(vertices)),
         indices_(std::move(indices))
@@ -37,9 +37,9 @@ class Mesh
       init();
   }
   Mesh(
-      std::vector<Vertex> &&vertices,
-      std::vector<GLuint> &&indices,
-      Material *material,
+      std::vector<Vertex>&& vertices,
+      std::vector<GLuint>&& indices,
+      Material* material,
       bool issueRenderingAPICalls = true)
       : vertices_(std::move(vertices)),
         indices_(std::move(indices)),
@@ -48,8 +48,8 @@ class Mesh
     if (issueRenderingAPICalls)
       init();
   }
-  Mesh(const Mesh &mesh) = delete;
-  Mesh(Mesh &&mesh) noexcept
+  Mesh(const Mesh& mesh) = delete;
+  Mesh(Mesh&& mesh) noexcept
       : vao_(mesh.vao_),
         vbo_(mesh.vbo_),
         ebo_(mesh.ebo_),
@@ -62,8 +62,8 @@ class Mesh
     mesh.ebo_ = 0;
     mesh.material_ = nullptr;
   }
-  Mesh &operator=(const Mesh &) = delete;
-  Mesh &operator=(Mesh &&mesh) noexcept
+  Mesh& operator=(const Mesh&) = delete;
+  Mesh& operator=(Mesh&& mesh) noexcept
   {
     if (this == &mesh)
       return *this;
@@ -87,7 +87,7 @@ class Mesh
   GLuint vao_{ 0 }, vbo_{ 0 }, ebo_{ 0 };
   std::vector<Vertex> vertices_;
   std::vector<uint32_t> indices_;
-  Material *material_{ nullptr };
+  Material* material_{ nullptr };
 
   void complete()
   {

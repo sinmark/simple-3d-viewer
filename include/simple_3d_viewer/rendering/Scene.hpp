@@ -21,7 +21,7 @@ inline const std::string modelProgramFilename = "model";
 
 struct Scene
 {
-  Scene(GLFWwindow *window)
+  Scene(GLFWwindow* window)
       : camera(window),
         light(sphereMesh(0.1f)),
         lightProgram(lightProgramFilename),
