@@ -372,3 +372,4 @@ compile_commands.json
 *build*/
 res/models/*
 !res/models/backpack/
+*.ini

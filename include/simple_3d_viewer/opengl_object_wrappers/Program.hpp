@@ -12,6 +12,7 @@
 
 namespace Simple3D
 {
+
 class Program
 {
  public:
@@ -52,4 +53,5 @@ class Program
   uint64_t id_;
   std::unordered_map<std::string, GLint> uniformLocationCache_;
 };
+
 }  // namespace Simple3D

@@ -13,7 +13,8 @@
     "assimp",
     "stb",
     "fmt",
-    "tl-expected"
+    "tl-expected",
+    "range-v3"
   ],
   "overrides": [
     { 

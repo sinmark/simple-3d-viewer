@@ -111,13 +111,6 @@ endif()
 
 message(STATUS "Added all header and implementation files.\n")
 
-# Set the project standard and warnings
-target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_20)
-
-if(${PROJECT_NAME}_BUILD_EXECUTABLE)
-  target_compile_features(${PROJECT_NAME}_LIB PUBLIC cxx_std_20)
-endif()
-
 include(cmake/CompilerWarnings.cmake)
 set_project_warnings(${PROJECT_NAME})
 
