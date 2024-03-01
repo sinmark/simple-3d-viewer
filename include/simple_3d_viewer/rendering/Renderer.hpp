@@ -12,19 +12,21 @@
 
 namespace Simple3D
 {
+
 class Renderer
 {
  public:
-  Renderer(GLFWwindow* window, const std::vector<PostprocessID>& postprocessIDs)
-      : window_(window),
-        postprocessPipeline_(postprocessIDs, getFramebufferSize(window))
+  Renderer(
+      const std::vector<PostprocessID>& postprocessIDs,
+      Size framebufferSize)
+      : postprocessPipeline_(postprocessIDs, framebufferSize)
   {
   }
 
   PostprocessPipeline postprocessPipeline_;
   bool drawLight_{ true };
 
-  void render(Scene& scene);
+  void render(Scene& scene, Size framebufferSize);
 
  private:
   template<typename T>
@@ -38,11 +40,14 @@ class Renderer
         const std::function<void()>& operationsBeforeUpdate)
     {
       if (changed = value != newValue; !changed)
+      {
         return;
+      }
       operationsBeforeUpdate();
       value = newValue;
     }
   };
+
   struct Cache
   {
     struct ModelProgramUniformsCache
@@ -81,7 +86,7 @@ class Renderer
   Cache cache_;
   GLFWwindow* window_;
 
-  void performCacheChecks(Scene& scene);
+  void performCacheChecks(Scene& scene, Size framebufferSize);
   void render(Model& model, Program& program);
   void render(Mesh& mesh, Program& program);
   void

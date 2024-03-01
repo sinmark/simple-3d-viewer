@@ -40,9 +40,9 @@ class Viewer
 
   void processInput(float delta)
   {
-    scene_.camera.processInput(delta);
+    scene_.camera.processInput(delta, window_);
   }
-  void render();
+  void render(Size framebufferSize);
   void setPostprocessActiveFlag(const std::string& ID, bool active)
   {
     renderer_.postprocessPipeline_.setPostprocessActiveFlag(ID, active);

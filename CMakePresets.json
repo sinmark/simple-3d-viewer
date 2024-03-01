@@ -10,24 +10,24 @@
             "name": "debug",
             "displayName": "Debug",
             "description": "Configure Debug Build (Ninja)",
-            "binaryDir": "${sourceDir}/cmake-${presetName}-build",
+            "binaryDir": "${sourceDir}/build",
             "generator": "Ninja",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug",
-                "CMAKE_CXX_COMPILER": "/usr/bin/c++",
-                "CMAKE_C_COMPILER": "/usr/bin/cc"
+                "CMAKE_CXX_COMPILER": "/usr/bin/clang++-15",
+                "CMAKE_C_COMPILER": "/usr/bin/clang-15"
             }
         },
         {
             "name": "release",
             "displayName": "Release",
             "description": "Configure Release Build (Ninja)",
-            "binaryDir": "${sourceDir}/cmake-${presetName}-build",
+            "binaryDir": "${sourceDir}/build",
             "generator": "Ninja",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release",
-                "CMAKE_CXX_COMPILER": "/usr/bin/c++",
-                "CMAKE_C_COMPILER": "/usr/bin/cc"
+                "CMAKE_CXX_COMPILER": "/usr/bin/clang++-15",
+                "CMAKE_C_COMPILER": "/usr/bin/clang-15"
             }
         }
     ],

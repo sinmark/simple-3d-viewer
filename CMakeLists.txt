@@ -157,12 +157,14 @@ verbose_message("Project library reference: ${PROJECT_LIBRARY}\n")
 find_package(glfw3 CONFIG REQUIRED)
 find_package(imgui CONFIG REQUIRED)
 find_package(assimp CONFIG REQUIRED)
+find_package(tl-expected CONFIG REQUIRED)
+find_package(fmt CONFIG REQUIRED)
 
 # External dependencies that are part of this repo
 add_subdirectory(external/glad)
 add_subdirectory(external/ImGuiFileDialog)
 
-target_link_libraries(${PROJECT_NAME}_LIB PUBLIC glfw glad imgui::imgui assimp::assimp ImGuiFileDialog)
+target_link_libraries(${PROJECT_NAME}_LIB PUBLIC glfw glad imgui::imgui assimp::assimp ImGuiFileDialog fmt::fmt tl::expected)
 
 add_custom_target(copy_resources
   COMMAND ${CMAKE_COMMAND} -DPROJECT_OUTPUT_DIR=${${PROJECT_NAME}_OUTPUT_DIR} -P ${CMAKE_CURRENT_LIST_DIR}/copy_resources.cmake
@@ -231,8 +233,10 @@ add_clang_format_target()
 
 # Put compile_commands.json into project root
 if(CMAKE_EXPORT_COMPILE_COMMANDS)
-  add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+  add_custom_target(
+    copy-compile-commands ALL
+    ${CMAKE_COMMAND} -E copy_if_different
     ${CMAKE_BINARY_DIR}/compile_commands.json
-    ${CMAKE_SOURCE_DIR}/compile_commands.json)
+    ${CMAKE_CURRENT_LIST_DIR}
+  )
 endif()

@@ -6,6 +6,7 @@
 
 namespace Simple3D
 {
+
 struct Size
 {
   int width;
@@ -17,12 +18,4 @@ struct Size
   }
 };
 
-inline Size getFramebufferSize(GLFWwindow *window)
-{
-  int width{};
-  int height{};
-  glfwGetFramebufferSize(window, &width, &height);
-
-  return { width, height };
-}
 }  // namespace Simple3D

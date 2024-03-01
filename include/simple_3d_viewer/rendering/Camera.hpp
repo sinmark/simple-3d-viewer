@@ -11,6 +11,7 @@
 
 namespace Simple3D
 {
+
 class Camera
 {
  public:
@@ -21,20 +22,25 @@ class Camera
   };
 
   Camera() = delete;
-  Camera(GLFWwindow* window) : window_(window)
+  explicit Camera(Size frameBufferSize)
+      : lastMouseX_(static_cast<float>(frameBufferSize.width) / 2.f),
+        lastMouseY_(static_cast<float>(frameBufferSize.height) / 2.f)
   {
-    auto [width, height] = getFramebufferSize(window_);
-    lastMouseX_ = width / 2.0;
-    lastMouseY_ = height / 2.0;
   }
+  // The class has state which we would need to reset for the class to work
+  // properly. Also for our use case there is no need for more than one Camera
+  // class.
   Camera(const Camera&) = delete;
+  Camera& operator=(const Camera&) = delete;
   Camera(Camera&&) = delete;
+  Camera& operator=(Camera&&) = delete;
+  ~Camera() = default;
 
-  const glm::vec3& getPosition() const
+  [[nodiscard]] const glm::vec3& getPosition() const
   {
     return position_;
   }
-  glm::mat4 getViewTransform() const
+  [[nodiscard]] glm::mat4 getViewTransform() const
   {
     return glm::lookAt(position_, position_ + orientation_, up_);
   }
@@ -43,16 +49,18 @@ class Camera
     settings_ = settings;
   }
 
-  void processInput(float delta);
+  void processInput(float delta, GLFWwindow* window);
 
  private:
-  GLFWwindow* window_{ nullptr };
   glm::vec3 position_{ 0.f, 0.f, 5.f };
   glm::vec3 orientation_{ 0.f, 0.f, -1.f };
   glm::vec3 up_{ 0.f, 1.f, 0.f };
   Settings settings_{ 1.f, 0.1f };
-  double yaw_ = -90., pitch_ = 0.;
-  double lastMouseX_, lastMouseY_;
+  float yaw_ = -90.f;
+  float pitch_ = 0.f;
+  float lastMouseX_;
+  float lastMouseY_;
   bool firstClick_ = true;
 };
+
 }  // namespace Simple3D

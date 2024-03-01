@@ -1,6 +1,8 @@
 #include <array>
 #include <iterator>
 #include <simple_3d_viewer/Viewer.hpp>
+#include <simple_3d_viewer/utils/Size.hpp>
+#include <simple_3d_viewer/utils/glfwUtils.hpp>
 
 namespace Simple3D
 {
@@ -8,8 +10,8 @@ Viewer::Viewer(
     GLFWwindow* window,
     const std::vector<std::string>& postprocessIDs)
     : window_(window),
-      scene_(window),
-      renderer_(window, postprocessIDs)
+      scene_(getFramebufferSize(window)),
+      renderer_(postprocessIDs, getFramebufferSize(window))
 {
   init();
 }
@@ -24,19 +26,16 @@ void Viewer::init()
   modelConfig_.set(Model::Configuration::Flag::IssueRenderingAPICalls, false);
 }
 
-void Viewer::render()
+void Viewer::render(const Size framebufferSize)
 {
   isModelLoaded();
 
-  int width{};
-  int height{};
-  glfwGetFramebufferSize(window_, &width, &height);
-  if (width <= 0 || height <= 0)
+  if (framebufferSize.width <= 0 || framebufferSize.height <= 0)
   {
     return;
   }
 
-  renderer_.render(scene_);
+  renderer_.render(scene_, framebufferSize);
 }
 
 void Viewer::reloadProgram()

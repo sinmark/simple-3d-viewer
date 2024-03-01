@@ -1,26 +1,31 @@
 #pragma once
 
+#include <filesystem>
+#include <fmt/format.h>
 #include <fstream>
 #include <string>
-#include <filesystem>
+#include <tl/expected.hpp>
 
-namespace Simple3D {
-inline std::string loadFileIntoString(const std::string &filePath) {
+namespace Simple3D
+{
+
+inline std::string loadFileIntoString(const std::filesystem::path& filePath)
+{
   std::ifstream in(filePath, std::ios::in | std::ios::binary);
-  if (in) {
-    std::string file;
-    in.seekg(0, std::ios::end);
-    file.resize(in.tellg());
-    in.seekg(0, std::ios::beg);
-    in.read(&file[0], file.size());
-    in.close();
-    return file;
-  } else {
-    const std::filesystem::path path(filePath);
-    const std::string errorMessage =
-        "Shader at path: " + std::filesystem::absolute(path).string() +
-        " doesn't exist!";
-    throw std::invalid_argument(errorMessage);
+  if (!in.is_open())
+  {
+    throw std::invalid_argument(fmt::format(
+        "File at path: {} doesn't exist",
+        std::filesystem::absolute(filePath).string()));
   }
+
+  std::string file;
+  in.seekg(0, std::ios::end);
+  file.resize(in.tellg());
+  in.seekg(0, std::ios::beg);
+  in.read(file.data(), static_cast<long>(file.size()));
+  in.close();
+  return file;
 }
-} // namespace Simple3D
+
+}  // namespace Simple3D

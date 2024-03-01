@@ -4,43 +4,44 @@
 
 namespace Simple3D
 {
-void Camera::processInput(float delta)
+
+void Camera::processInput(float delta, GLFWwindow* window)
 {
   const auto [speed, sensitivity] = settings_;
   const float deltaSpeed = speed * delta;
-  if (glfwGetKey(window_, GLFW_KEY_W) == GLFW_PRESS)
+  if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
   {
     position_ += deltaSpeed * orientation_;
   }
-  if (glfwGetKey(window_, GLFW_KEY_A) == GLFW_PRESS)
+  if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
   {
     position_ += deltaSpeed * -glm::normalize(glm::cross(orientation_, up_));
   }
-  if (glfwGetKey(window_, GLFW_KEY_S) == GLFW_PRESS)
+  if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
   {
     position_ += deltaSpeed * -orientation_;
   }
-  if (glfwGetKey(window_, GLFW_KEY_D) == GLFW_PRESS)
+  if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
   {
     position_ += deltaSpeed * glm::normalize(glm::cross(orientation_, up_));
   }
-  if (glfwGetKey(window_, GLFW_KEY_SPACE) == GLFW_PRESS)
+  if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
   {
     position_ += deltaSpeed * up_;
   }
-  if (glfwGetKey(window_, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
+  if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
   {
     position_ += deltaSpeed * -up_;
   }
 
   const float deltaSensitivity = sensitivity * delta;
   const auto rightMouseButtonClickState =
-      glfwGetMouseButton(window_, GLFW_MOUSE_BUTTON_RIGHT);
+      glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT);
   if (rightMouseButtonClickState == GLFW_PRESS)
   {
     double mouseX{};
     double mouseY{};
-    glfwGetCursorPos(window_, &mouseX, &mouseY);
+    glfwGetCursorPos(window, &mouseX, &mouseY);
 
     if (firstClick_)
     {
@@ -63,9 +64,13 @@ void Camera::processInput(float delta)
     pitch_ += yoffset;
 
     if (pitch_ > 89.0f)
+    {
       pitch_ = 89.0f;
+    }
     if (pitch_ < -89.0f)
+    {
       pitch_ = -89.0f;
+    }
 
     const glm::vec3 direction{
       static_cast<float>(cos(glm::radians(yaw_)) * cos(glm::radians(pitch_))),
@@ -79,4 +84,5 @@ void Camera::processInput(float delta)
     firstClick_ = true;
   }
 }
+
 }  // namespace Simple3D

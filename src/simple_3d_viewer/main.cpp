@@ -6,6 +6,7 @@
 #include <simple_3d_viewer/ImGuiWrapper.hpp>
 #include <simple_3d_viewer/Mediator.hpp>
 #include <simple_3d_viewer/Viewer.hpp>
+#include <simple_3d_viewer/utils/glfwUtils.hpp>
 
 int main()
 {
@@ -24,7 +25,7 @@ int main()
       "Simple 3D Viewer",
       nullptr,
       nullptr);
-  if (!window)
+  if (window == nullptr)
   {
     glfwTerminate();
     return -1;
@@ -56,7 +57,8 @@ int main()
     imGuiWrapper.update();
     viewer.processInput(static_cast<float>(delta));
 
-    viewer.render();
+    const auto framebufferSize = Simple3D::getFramebufferSize(window);
+    viewer.render(framebufferSize);
     imGuiWrapper.render();
 
     glfwSwapBuffers(window);

@@ -29,9 +29,9 @@ static std::unordered_map<PostprocessID, Postprocess> createIDToPostprocessMap(
 
 PostprocessPipeline::PostprocessPipeline(
     const std::vector<std::string>& postprocessIDs,
-    Size size)
+    const Size framebufferSize)
     : idToPostprocess_(createIDToPostprocessMap(postprocessIDs)),
-      size_(size)
+      size_(framebufferSize)
 {
   init();
 }

@@ -3,9 +3,9 @@
 
 namespace Simple3D
 {
-void Renderer::render(Scene& scene)
+void Renderer::render(Scene& scene, const Size framebufferSize)
 {
-  performCacheChecks(scene);
+  performCacheChecks(scene, framebufferSize);
   postprocessPipeline_.start();
   glEnable(GL_DEPTH_TEST);
   static constexpr auto clearColor = 0.01f;
@@ -19,24 +19,23 @@ void Renderer::render(Scene& scene)
   postprocessPipeline_.finalize();
 }
 
-void Renderer::performCacheChecks(Scene& scene)
+void Renderer::performCacheChecks(Scene& scene, const Size framebufferSize)
 {
   auto& modelProgramUniformsCache = cache_.modelProgramUniformsCache;
-  const auto size = getFramebufferSize(window_);
-  const auto projection = calculateProjectionTransform(size);
+  const auto projection = calculateProjectionTransform(framebufferSize);
   const auto view = scene.camera.getViewTransform();
   modelProgramUniformsCache.modelProgramID.update(
       scene.modelProgram.getID(),
       [&modelProgramUniformsCache]() { modelProgramUniformsCache.clear(); });
   cache_.framebufferSize.update(
-      size,
+      framebufferSize,
       [&modelProgramUniformsCache,
-       size,
+       framebufferSize,
        &postprocessPipeline = postprocessPipeline_]()
       {
         modelProgramUniformsCache.clear();
-        glViewport(0, 0, size.width, size.height);
-        postprocessPipeline.resize(size);
+        glViewport(0, 0, framebufferSize.width, framebufferSize.height);
+        postprocessPipeline.resize(framebufferSize);
       });
   modelProgramUniformsCache.projectionViewTransform.update(
       { projection, view },

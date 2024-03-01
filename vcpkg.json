@@ -11,7 +11,9 @@
     "imgui",
     "glm",
     "assimp",
-    "stb"
+    "stb",
+    "fmt",
+    "tl-expected"
   ],
   "overrides": [
     { 

@@ -7,6 +7,7 @@
 #include <simple_3d_viewer/rendering/Camera.hpp>
 #include <simple_3d_viewer/rendering/Mesh.hpp>
 #include <simple_3d_viewer/rendering/Model.hpp>
+#include <simple_3d_viewer/utils/Size.hpp>
 
 namespace Simple3D
 {
@@ -21,8 +22,8 @@ inline const std::string modelProgramFilename = "model";
 
 struct Scene
 {
-  Scene(GLFWwindow* window)
-      : camera(window),
+  Scene(Size framebufferSize)
+      : camera(framebufferSize),
         light(sphereMesh(0.1f)),
         lightProgram(lightProgramFilename),
         skybox(skyboxMesh()),

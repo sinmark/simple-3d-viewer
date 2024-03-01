@@ -11,11 +11,13 @@
 
 namespace Simple3D
 {
+
 struct Postprocess
 {
   Program program;
   bool active;
 };
+
 using PostprocessID = std::string;
 
 class PostprocessPipeline
@@ -25,7 +27,7 @@ class PostprocessPipeline
 
   PostprocessPipeline(
       const std::vector<PostprocessID>& postprocessIDs,
-      Size size);
+      Size framebufferSize);
   PostprocessPipeline(const PostprocessPipeline&) = delete;
   PostprocessPipeline(PostprocessPipeline&& postprocessPipeline) noexcept
       : idToPostprocess_(std::move(postprocessPipeline.idToPostprocess_)),
@@ -67,11 +69,13 @@ class PostprocessPipeline
               postprocessesOrder_.begin(), postprocessesOrder_.end(), program),
           postprocessesOrder_.end());
   }
-  void resize(Size size)
+  void resize(Size framebufferSize)
   {
-    if (size == size_)
+    if (size_ == framebufferSize)
+    {
       return;
-    size_ = size;
+    }
+    size_ = framebufferSize;
     updatePostprocesses();
 
     resizeFramebuffersAttachments();
