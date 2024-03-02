@@ -1,3 +1,5 @@
+#include "simple_3d_viewer/utils/constants.hpp"
+#include "simple_3d_viewer/utils/factories.hpp"
 #include <array>
 #include <iterator>
 #include <simple_3d_viewer/Viewer.hpp>
@@ -42,7 +44,7 @@ void Viewer::reloadProgram()
 {
   try
   {
-    scene_.modelProgram = Program(modelProgramFilename);
+    scene_.modelProgram = createProgram(kModelShaderCommonName);
   }
   catch (std::invalid_argument& e)
   {

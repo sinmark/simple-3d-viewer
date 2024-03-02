@@ -17,23 +17,22 @@ class Program
 {
  public:
   Program() = delete;
-  Program(
-      const std::string& vertexShaderFileName,
-      const std::string& fragmentShaderFileName);
-  explicit Program(const std::string& commonShaderFileName);
+  Program(const std::string& vertexShader, const std::string& fragmentShader);
   Program(const Program& other) = delete;
   Program(Program&& other) noexcept;
   Program& operator=(const Program&) = delete;
   Program& operator=(Program&& other) noexcept;
   ~Program();
 
-  void release();
   void doOperations(const std::function<void(Program&)>& operations);
+  void release();
 
   [[nodiscard]] uint64_t getID() const
   {
     return id_;
   }
+
+  [[nodiscard]] bool hasUniform(const std::string& name) const;
 
   void setInt(const std::string& name, int value);
   void setFloat(const std::string& name, float value);
@@ -45,8 +44,6 @@ class Program
   void
   setVec4f(const std::string& name, float v0, float v1, float v2, float v3);
   void setMat4f(const std::string& name, const glm::mat4& matrix);
-
-  [[nodiscard]] bool hasUniform(const std::string& name) const;
 
  private:
   GLuint programHandle_ = 0;

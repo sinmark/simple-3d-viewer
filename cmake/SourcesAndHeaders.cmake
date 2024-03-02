@@ -8,6 +8,7 @@ set(sources
   src/simple_3d_viewer/rendering/Model.cpp
   src/simple_3d_viewer/rendering/PostprocessPipeline.cpp
   src/simple_3d_viewer/rendering/Renderer.cpp
+  src/simple_3d_viewer/rendering/Scene.cpp
   src/simple_3d_viewer/opengl_object_wrappers/Program.cpp
   src/simple_3d_viewer/opengl_object_wrappers/Texture.cpp
   src/simple_3d_viewer/linear_algebra/meshGeneration.cpp
@@ -34,4 +35,9 @@ set(headers
   include/simple_3d_viewer/linear_algebra/meshGeneration.hpp
   include/simple_3d_viewer/linear_algebra/Transform.hpp
   include/simple_3d_viewer/linear_algebra/Vertex.hpp
+  include/simple_3d_viewer/utils/constants.hpp
+  include/simple_3d_viewer/utils/factories.hpp
+  include/simple_3d_viewer/utils/fileOperations.hpp
+  include/simple_3d_viewer/utils/glfwUtils.hpp
+  include/simple_3d_viewer/utils/Size.hpp
 )

@@ -45,17 +45,19 @@ void Texture::loadTextureCubeMapData()
 uint8_t* Texture::loadImageAtPath(int pathsIndex, bool flip)
 {
   if (flip)
+  {
     stbi_set_flip_vertically_on_load(1);
+  }
   uint8_t* loadedImage = stbi_load(
       (paths_[pathsIndex]).c_str(),
       &widths_[pathsIndex],
       &heights_[pathsIndex],
       &colorChannelsCounts_[pathsIndex],
       0);
-  if (!loadedImage)
+  if (loadedImage == nullptr)
   {
     const auto errorMessage =
-        "Failed to load image at path: " + paths_[pathsIndex];
+        "Failed to load image at path: " + paths_[pathsIndex].string();
     throw std::invalid_argument(errorMessage);
   }
   return loadedImage;
@@ -81,7 +83,8 @@ void Texture::createTexture2D()
   else
   {
     const auto errorMessage =
-        "Invalid number of color channels for texture at path: " + paths_[0];
+        "Invalid number of color channels for texture at path: " +
+        paths_[0].string();
     throw std::invalid_argument(errorMessage);
   }
 

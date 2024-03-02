@@ -6,6 +6,7 @@
 #include <iostream>
 #include <range/v3/algorithm/remove.hpp>
 #include <simple_3d_viewer/rendering/PostprocessPipeline.hpp>
+#include <simple_3d_viewer/utils/factories.hpp>
 #include <unordered_map>
 
 namespace Simple3D
@@ -29,7 +30,9 @@ std::unordered_map<PostprocessID, Postprocess> createIDToPostprocessMap(
         begin(lowerCaseId),
         [](unsigned char c) -> char { return std::tolower(c); });
     idToPostprocess.emplace(std::pair{
-        id, Postprocess{ Program(vertexShaderFilename, lowerCaseId), false } });
+        id,
+        Postprocess{ createProgram(vertexShaderFilename, lowerCaseId),
+                     false } });
   }
 
   return idToPostprocess;

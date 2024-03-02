@@ -2,6 +2,7 @@
 #include <iostream>
 #include <optional>
 #include <simple_3d_viewer/opengl_object_wrappers/Program.hpp>
+#include <simple_3d_viewer/utils/constants.hpp>
 #include <simple_3d_viewer/utils/fileOperations.hpp>
 #include <string_view>
 #include <unordered_map>
@@ -112,18 +113,10 @@ GLuint linkProgram(
 }  // namespace
 
 Program::Program(
-    const std::string& vertexShaderFileName,
-    const std::string& fragmentShaderFileName)
-    : programHandle_(linkProgram(
-          loadFileIntoString(shaderDirPath() / (vertexShaderFileName + ".vs")),
-          loadFileIntoString(
-              shaderDirPath() / (fragmentShaderFileName + ".fs")))),
+    const std::string& vertexShader,
+    const std::string& fragmentShader)
+    : programHandle_(linkProgram(vertexShader, fragmentShader)),
       id_(++g_idGenerator)
-{
-}
-
-Program::Program(const std::string& commonShaderFileName)
-    : Program(commonShaderFileName, commonShaderFileName)
 {
 }
 

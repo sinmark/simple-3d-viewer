@@ -3,6 +3,7 @@
 #include <glad/glad.h>
 
 #include <assert.h>
+#include <filesystem>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -19,7 +20,7 @@ class Texture
 
  public:
   Texture() = delete;
-  Texture(const std::string& path, bool doOpenGLStuff = true)
+  explicit Texture(const std::string& path, bool doOpenGLStuff = true)
       : type_(Type::Texture2D)
   {
     const int imagesCount = 1;
@@ -28,12 +29,18 @@ class Texture
     heights_.resize(imagesCount);
     colorChannelsCounts_.resize(1);
     if (doOpenGLStuff)
+    {
       init();
+    }
     else
+    {
       loadData();
+    }
   }
-  Texture(const std::vector<std::string>& paths, bool doOpenGLStuff = true)
-      : paths_(paths),
+  explicit Texture(
+      std::vector<std::filesystem::path> paths,
+      bool doOpenGLStuff = true)
+      : paths_(std::move(paths)),
         type_(Type::TextureCubeMap)
   {
     const int imagesCount = 6;
@@ -42,9 +49,13 @@ class Texture
     heights_.resize(imagesCount);
     colorChannelsCounts_.resize(imagesCount);
     if (doOpenGLStuff)
+    {
       init();
+    }
     else
+    {
       loadData();
+    }
   }
   Texture(const Texture&) = delete;
   Texture(Texture&& texture) noexcept
@@ -62,7 +73,9 @@ class Texture
   Texture& operator=(Texture&& texture) noexcept
   {
     if (this == &texture)
+    {
       return *this;
+    }
 
     release();
 
@@ -106,11 +119,11 @@ class Texture
     }
   }
 
-  const std::string& getPath() const
+  const std::filesystem::path& getPath() const
   {
     return paths_.front();
   }
-  const std::vector<std::string>& getPaths() const
+  const std::vector<std::filesystem::path>& getPaths() const
   {
     return paths_;
   }
@@ -129,7 +142,7 @@ class Texture
 
  private:
   GLuint texture_ = 0;
-  std::vector<std::string> paths_;
+  std::vector<std::filesystem::path> paths_;
   std::vector<int> widths_, heights_, colorChannelsCounts_;
   std::vector<uint8_t*> loadedImages_;
   Type type_;
