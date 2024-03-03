@@ -1,8 +1,8 @@
 #pragma once
 
-#include "simple_3d_viewer/utils/constants.hpp"
-#include "simple_3d_viewer/utils/fileOperations.hpp"
 #include <simple_3d_viewer/opengl_object_wrappers/Program.hpp>
+#include <simple_3d_viewer/utils/constants.hpp>
+#include <simple_3d_viewer/utils/fileOperations.hpp>
 
 namespace Simple3D
 {
