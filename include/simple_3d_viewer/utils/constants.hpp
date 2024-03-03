@@ -1,6 +1,8 @@
 #pragma once
 
 #include <filesystem>
+#include <glm/ext/vector_float2.hpp>
+#include <glm/ext/vector_float3.hpp>
 #include <vector>
 
 namespace Simple3D
@@ -34,5 +36,8 @@ inline const std::vector<std::filesystem::path>& kSkyboxImagesPaths()
 inline const char* const kLightShaderCommonName = "light";
 inline const char* const kSkyboxShaderCommonName = "skybox";
 inline const char* const kModelShaderCommonName = "model";
+
+inline constexpr auto kVec3ComponentsCount = glm::vec3::length();
+inline constexpr auto kVec2ComponentsCount = glm::vec2::length();
 
 }  // namespace Simple3D

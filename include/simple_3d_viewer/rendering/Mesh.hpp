@@ -1,7 +1,5 @@
 #pragma once
 
-#include <glad/glad.h>
-
 #include <array>
 #include <cassert>
 #include <glm/vec2.hpp>
@@ -16,29 +14,36 @@
 
 namespace Simple3D
 {
+
 class Mesh
 {
  public:
   Mesh() = delete;
-  Mesh(std::vector<Vertex>&& vertices, bool issueRenderingAPICalls = true)
+  explicit Mesh(
+      std::vector<Vertex> vertices,
+      bool issueRenderingAPICalls = true)
       : vertices_(std::move(vertices))
   {
     if (issueRenderingAPICalls)
+    {
       init();
+    }
   }
   Mesh(
-      std::vector<Vertex>&& vertices,
-      std::vector<GLuint>&& indices,
+      std::vector<Vertex> vertices,
+      std::vector<GLuint> indices,
       bool issueRenderingAPICalls = true)
       : vertices_(std::move(vertices)),
         indices_(std::move(indices))
   {
     if (issueRenderingAPICalls)
+    {
       init();
+    }
   }
   Mesh(
-      std::vector<Vertex>&& vertices,
-      std::vector<GLuint>&& indices,
+      std::vector<Vertex> vertices,
+      std::vector<GLuint> indices,
       Material* material,
       bool issueRenderingAPICalls = true)
       : vertices_(std::move(vertices)),
@@ -46,36 +51,42 @@ class Mesh
         material_(material)
   {
     if (issueRenderingAPICalls)
+    {
       init();
+    }
   }
   Mesh(const Mesh& mesh) = delete;
+  Mesh& operator=(const Mesh&) = delete;
   Mesh(Mesh&& mesh) noexcept
-      : vao_(mesh.vao_),
-        vbo_(mesh.vbo_),
-        ebo_(mesh.ebo_),
-        vertices_(std::move(mesh.vertices_)),
+      : vertices_(std::move(mesh.vertices_)),
         indices_(std::move(mesh.indices_)),
-        material_(mesh.material_)
+        material_(mesh.material_),
+        vao_(mesh.vao_),
+        vbo_(mesh.vbo_),
+        ebo_(mesh.ebo_)
   {
     mesh.vao_ = 0;
     mesh.vbo_ = 0;
     mesh.ebo_ = 0;
     mesh.material_ = nullptr;
   }
-  Mesh& operator=(const Mesh&) = delete;
-  Mesh& operator=(Mesh&& mesh) noexcept
+  Mesh& operator=(Mesh&& other) noexcept
   {
-    if (this == &mesh)
+    if (this == &other)
+    {
       return *this;
+    }
 
     release();
 
-    std::swap(vao_, mesh.vao_);
-    std::swap(vbo_, mesh.vbo_);
-    std::swap(ebo_, mesh.ebo_);
-    vertices_ = std::move(mesh.vertices_);
-    indices_ = std::move(mesh.indices_);
-    material_ = mesh.material_;
+    using std::swap;
+
+    swap(vao_, other.vao_);
+    swap(vbo_, other.vbo_);
+    swap(ebo_, other.ebo_);
+    swap(vertices_, other.vertices_);
+    swap(indices_, other.indices_);
+    swap(material_, other.material_);
 
     return *this;
   }
@@ -84,35 +95,19 @@ class Mesh
     release();
   }
 
-  GLuint vao_{ 0 }, vbo_{ 0 }, ebo_{ 0 };
   std::vector<Vertex> vertices_;
   std::vector<uint32_t> indices_;
   Material* material_{ nullptr };
+  uint vao_{};
+  uint vbo_{};
+  uint ebo_{};
 
-  void complete()
-  {
-    if (vao_)
-      throw std::logic_error("Object is already complete!");
-    init();
-  }
-  void release()
-  {
-    if (vao_)
-    {
-      assert(vao_ && vbo_);
-      glDeleteVertexArrays(1, &vao_);
-      glDeleteBuffers(1, &vbo_);
-      if (ebo_)
-      {
-        glDeleteBuffers(1, &ebo_);
-      }
-      vao_ = 0;
-      vbo_ = 0;
-      ebo_ = 0;
-    }
-  }
+  void complete();
+
+  void release();
 
  private:
   void init();
 };
+
 }  // namespace Simple3D

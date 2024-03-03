@@ -1,6 +1,6 @@
 #pragma once
 
-#include <assert.h>
+#include <cassert>
 #include <filesystem>
 #include <simple_3d_viewer/utils/Image.hpp>
 #include <stdexcept>
@@ -9,6 +9,7 @@
 
 namespace Simple3D
 {
+
 class Texture
 {
  public:

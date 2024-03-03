@@ -1,7 +1,23 @@
+#include <glad/glad.h>
+
+#include <cstdint>
+#include <glm/ext/vector_float3.hpp>
 #include <simple_3d_viewer/rendering/Mesh.hpp>
+#include <simple_3d_viewer/utils/constants.hpp>
 
 namespace Simple3D
 {
+
+namespace
+{
+
+char* attributeOffset(GLuint value)
+{
+  return static_cast<char*>(nullptr) + value;
+}
+
+}  // namespace
+
 void Mesh::init()
 {
   glGenVertexArrays(1, &vao_);
@@ -11,32 +27,97 @@ void Mesh::init()
   glBindBuffer(GL_ARRAY_BUFFER, vbo_);
   glBufferData(
       GL_ARRAY_BUFFER,
-      vertices_.size() * sizeof(Vertex),
+      static_cast<GLsizeiptr>(vertices_.size()) * sizeof(Vertex),
       vertices_.data(),
       GL_STATIC_DRAW);
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
-  glEnableVertexAttribArray(0);
+
+  GLuint index = 0;
+  GLuint offset = 0;
   glVertexAttribPointer(
-      1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(3 * sizeof(float)));
-  glEnableVertexAttribArray(1);
+      index,
+      kVec3ComponentsCount,
+      GL_FLOAT,
+      GL_FALSE,
+      sizeof(Vertex),
+      attributeOffset(offset));
+  glEnableVertexAttribArray(index);
+
+  ++index;
+  offset += sizeof(glm::vec3);
   glVertexAttribPointer(
-      2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(6 * sizeof(float)));
-  glEnableVertexAttribArray(2);
+      index,
+      kVec3ComponentsCount,
+      GL_FLOAT,
+      GL_FALSE,
+      sizeof(Vertex),
+      attributeOffset(offset));
+  glEnableVertexAttribArray(index);
+
+  ++index;
+  offset += sizeof(glm::vec3);
   glVertexAttribPointer(
-      3, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(9 * sizeof(float)));
-  glEnableVertexAttribArray(3);
+      index,
+      kVec3ComponentsCount,
+      GL_FLOAT,
+      GL_FALSE,
+      sizeof(Vertex),
+      attributeOffset(offset));
+  glEnableVertexAttribArray(index);
+
+  ++index;
+  offset += sizeof(glm::vec3);
   glVertexAttribPointer(
-      4, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(11 * sizeof(float)));
-  glEnableVertexAttribArray(4);
+      index,
+      kVec3ComponentsCount,
+      GL_FLOAT,
+      GL_FALSE,
+      sizeof(Vertex),
+      attributeOffset(offset));
+  glEnableVertexAttribArray(index);
+
+  ++index;
+  offset += sizeof(glm::vec2);
   glVertexAttribPointer(
-      5, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(13 * sizeof(float)));
-  glEnableVertexAttribArray(5);
+      index,
+      kVec2ComponentsCount,
+      GL_FLOAT,
+      GL_FALSE,
+      sizeof(Vertex),
+      attributeOffset(offset));
+  glEnableVertexAttribArray(index);
+
+  ++index;
+  offset += sizeof(glm::vec2);
   glVertexAttribPointer(
-      6, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(15 * sizeof(float)));
-  glEnableVertexAttribArray(6);
+      index,
+      kVec2ComponentsCount,
+      GL_FLOAT,
+      GL_FALSE,
+      sizeof(Vertex),
+      attributeOffset(offset));
+  glEnableVertexAttribArray(index);
+
+  ++index;
+  offset += sizeof(glm::vec2);
   glVertexAttribPointer(
-      7, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(17 * sizeof(float)));
-  glEnableVertexAttribArray(7);
+      index,
+      kVec2ComponentsCount,
+      GL_FLOAT,
+      GL_FALSE,
+      sizeof(Vertex),
+      attributeOffset(offset));
+  glEnableVertexAttribArray(index);
+
+  ++index;
+  offset += sizeof(glm::vec2);
+  glVertexAttribPointer(
+      index,
+      kVec2ComponentsCount,
+      GL_FLOAT,
+      GL_FALSE,
+      sizeof(Vertex),
+      attributeOffset(offset));
+  glEnableVertexAttribArray(index);
 
   if (!indices_.empty())
   {
@@ -44,7 +125,7 @@ void Mesh::init()
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo_);
     glBufferData(
         GL_ELEMENT_ARRAY_BUFFER,
-        indices_.size() * sizeof(GLuint),
+        static_cast<GLsizeiptr>(indices_.size()) * sizeof(GLuint),
         indices_.data(),
         GL_STATIC_DRAW);
   }
@@ -53,4 +134,31 @@ void Mesh::init()
   glBindBuffer(GL_ARRAY_BUFFER, 0);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
+
+void Mesh::release()
+{
+  if (vao_ != 0)
+  {
+    assert(vao_ && vbo_);
+    glDeleteVertexArrays(1, &vao_);
+    glDeleteBuffers(1, &vbo_);
+    if (ebo_ != 0)
+    {
+      glDeleteBuffers(1, &ebo_);
+    }
+    vao_ = 0;
+    vbo_ = 0;
+    ebo_ = 0;
+  }
+}
+
+void Mesh::complete()
+{
+  if (vao_ != 0)
+  {
+    throw std::logic_error("Object is already complete!");
+  }
+  init();
+}
+
 }  // namespace Simple3D

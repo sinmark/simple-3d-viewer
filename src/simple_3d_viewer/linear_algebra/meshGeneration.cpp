@@ -115,6 +115,6 @@ Mesh skyboxMesh()
     { glm::vec3(1.0f, -1.0f, -1.0f) },  { glm::vec3(1.0f, -1.0f, -1.0f) },
     { glm::vec3(-1.0f, -1.0f, 1.0f) },  { glm::vec3(1.0f, -1.0f, 1.0f) }
   };
-  return { std::move(squareVertices) };
+  return Mesh{ std::move(squareVertices) };
 }
 }  // namespace Simple3D
