@@ -13,13 +13,13 @@ namespace Simple3D
 {
 class Texture
 {
+ public:
   enum class Type
   {
     Texture2D,
     TextureCubeMap
   };
 
- public:
   Texture() = delete;
   explicit Texture(const std::filesystem::path& path, bool doOpenGLStuff = true)
       : type_(Type::Texture2D)
@@ -42,7 +42,6 @@ class Texture
       : paths_(std::move(paths)),
         type_(Type::TextureCubeMap)
   {
-    const int imagesCount = 6;
     assert(paths.size() == imagesCount);
     if (doOpenGLStuff)
     {
@@ -81,48 +80,16 @@ class Texture
 
     return *this;
   }
-
   ~Texture()
   {
     release();
   }
 
-  void complete()
-  {
-    assert(textureHandle_ != 0);
+  void release();
 
-    if (type_ == Type::Texture2D)
-    {
-      createTexture2D();
-    }
-    else if (type_ == Type::TextureCubeMap)
-    {
-      createTextureCubeMap();
-    }
-  }
-  void use(uint32_t textureSlot = 0)
-  {
-    glActiveTexture(GL_TEXTURE0 + textureSlot);
-    if (type_ == Type::Texture2D)
-    {
-      glBindTexture(GL_TEXTURE_2D, textureHandle_);
-    }
-    else if (type_ == Type::TextureCubeMap)
-    {
-      glBindTexture(GL_TEXTURE_CUBE_MAP, textureHandle_);
-    }
-  }
+  void complete();
 
-  void release()
-  {
-    if (textureHandle_ == 0)
-    {
-      return;
-    }
-
-    glDeleteTextures(1, &textureHandle_);
-    textureHandle_ = 0;
-  }
+  void use(uint32_t textureSlot = 0);
 
   [[nodiscard]] const std::filesystem::path& getPath() const
   {
@@ -142,7 +109,6 @@ class Texture
   void init();
   void loadData();
   void loadTextures();
-  void createTexture2D();
-  void createTextureCubeMap();
 };
+
 }  // namespace Simple3D
