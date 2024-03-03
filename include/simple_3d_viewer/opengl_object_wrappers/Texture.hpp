@@ -1,7 +1,5 @@
 #pragma once
 
-#include <glad/glad.h>
-
 #include <assert.h>
 #include <filesystem>
 #include <simple_3d_viewer/utils/Image.hpp>
@@ -101,7 +99,7 @@ class Texture
   }
 
  private:
-  GLuint textureHandle_ = 0;
+  uint textureHandle_ = 0;
   std::vector<std::filesystem::path> paths_;
   std::vector<Image> loadedImages_;
   Type type_;

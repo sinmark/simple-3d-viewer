@@ -1,7 +1,5 @@
 #pragma once
 
-#include <glad/glad.h>
-
 #include <functional>
 #include <glm/mat4x4.hpp>
 #include <glm/vec3.hpp>
@@ -46,9 +44,9 @@ class Program
   void setMat4f(const std::string& name, const glm::mat4& matrix);
 
  private:
-  GLuint programHandle_ = 0;
+  uint programHandle_ = 0;
   uint64_t id_;
-  std::unordered_map<std::string, GLint> uniformLocationCache_;
+  mutable std::unordered_map<std::string, int> uniformLocationCache_;
 };
 
 }  // namespace Simple3D

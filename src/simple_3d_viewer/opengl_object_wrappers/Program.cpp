@@ -1,4 +1,7 @@
-﻿#include <filesystem>
+﻿#include <glad/glad.h>
+
+#include <filesystem>
+#include <fmt/core.h>
 #include <iostream>
 #include <optional>
 #include <simple_3d_viewer/opengl_object_wrappers/Program.hpp>
@@ -11,42 +14,49 @@
 
 namespace Simple3D
 {
+
 namespace
 {
-uint64_t g_idGenerator = 0;
-constexpr auto errorPrefix = "Program error: ";
-constexpr GLint invalidLocation = -1;
 
-// The function call filesystem::current_path() can throw so we can't make
-// shaderDirPath global and initialize it at the same time.
-std::filesystem::path& shaderDirPath()
-{
-  static auto result = std::filesystem::current_path() / "res/shaders/";
-  return result;
-}
+uint64_t gIDGenerator = 0;
+const char* const kErrorPrefix = "Error (Program):";
+constexpr GLint kInvalidLocation = -1;
 
-std::optional<std::string> getCompilationErrorMessage(GLuint shader)
+bool compilationSuccessful(GLuint shader)
 {
   GLint compiled{};
   glGetShaderiv(shader, GL_COMPILE_STATUS, &compiled);
-  if (compiled == 0)
-  {
-    GLint maxLength = 0;
-    glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &maxLength);
-    // The maxLength includes the NULL character
-    std::string errorMessage(maxLength, '\0');
-    glGetShaderInfoLog(shader, maxLength, &maxLength, &errorMessage.front());
-    std::cout << errorPrefix << errorMessage << '\n';
-    return errorMessage;
-  }
-  return {};
+
+  return compiled != 0;
+}
+
+std::string compilationErrorMessage(GLuint shaderHandle)
+{
+  GLint maxLength{};
+  glGetShaderiv(shaderHandle, GL_INFO_LOG_LENGTH, &maxLength);
+
+  // The maxLength includes the NULL character
+  std::string errorMessage(maxLength, '\0');
+  glGetShaderInfoLog(shaderHandle, maxLength, &maxLength, errorMessage.data());
+
+  return errorMessage;
+}
+
+bool linkingSuccessful(GLuint programHandle)
+{
+  GLint linked{};
+  glGetProgramiv(programHandle, GL_LINK_STATUS, &linked);
+
+  return linked != 0;
 }
 
 void printInvalidUniform(const std::string& name)
 {
-  const std::string log = std::string(errorPrefix) + "Uniform '" + name +
-                          "' doesn't exist! Might have been optimized out!";
-  std::cout << log << '\n';
+  fmt::println(
+      stderr,
+      "{} Uniform {} doesn't exist. Might have been optimized out.",
+      kErrorPrefix,
+      name);
 }
 
 GLuint linkProgram(
@@ -59,13 +69,15 @@ GLuint linkProgram(
   const auto* vertexShaderPtr = vertexShader.c_str();
   glShaderSource(vertexShaderHandle, 1, &vertexShaderPtr, nullptr);
   glCompileShader(vertexShaderHandle);
-  if (const auto maybeErrorMessage =
-          getCompilationErrorMessage(vertexShaderHandle);
-      maybeErrorMessage.has_value())
+  if (!compilationSuccessful(vertexShaderHandle))
   {
+    const auto errorMessage = compilationErrorMessage(vertexShaderHandle);
+    fmt::println(stderr, "{} {}", kErrorPrefix, errorMessage);
+
     glDeleteProgram(programHandle);
     glDeleteShader(vertexShaderHandle);
-    throw std::invalid_argument(*maybeErrorMessage);
+
+    throw std::invalid_argument(errorMessage);
   }
   glAttachShader(programHandle, vertexShaderHandle);
 
@@ -73,33 +85,29 @@ GLuint linkProgram(
   const auto* fragmentShaderPtr = fragmentShader.c_str();
   glShaderSource(fragmentShaderHandle, 1, &fragmentShaderPtr, nullptr);
   glCompileShader(fragmentShaderHandle);
-  if (const auto maybeErrorMessage =
-          getCompilationErrorMessage(fragmentShaderHandle);
-      maybeErrorMessage.has_value())
+  if (!compilationSuccessful(fragmentShaderHandle))
   {
+    const auto errorMessage = compilationErrorMessage(fragmentShaderHandle);
+    fmt::println(stderr, "{} {}", kErrorPrefix, errorMessage);
+
     glDeleteProgram(programHandle);
     glDeleteShader(vertexShaderHandle);
     glDeleteShader(fragmentShaderHandle);
-    throw std::invalid_argument(*maybeErrorMessage);
+
+    throw std::invalid_argument(errorMessage);
   }
   glAttachShader(programHandle, fragmentShaderHandle);
 
   glLinkProgram(programHandle);
-  GLint linked = 0;
-  glGetProgramiv(programHandle, GL_LINK_STATUS, (int*)&linked);
-  if (linked == 0)
+  if (!linkingSuccessful(programHandle))
   {
-    GLint maxLength = 0;
-    glGetShaderiv(fragmentShaderHandle, GL_INFO_LOG_LENGTH, &maxLength);
-    // The maxLength includes the NULL character
-    std::string errorMessage(maxLength, '\0');
-    glGetShaderInfoLog(
-        fragmentShaderHandle, maxLength, &maxLength, &errorMessage.front());
-    std::cout << errorPrefix << errorMessage << '\n';
+    const auto errorMessage = compilationErrorMessage(fragmentShaderHandle);
+    fmt::println(stderr, "{} {}", kErrorPrefix, errorMessage);
 
     glDeleteProgram(programHandle);
     glDeleteShader(vertexShaderHandle);
     glDeleteShader(fragmentShaderHandle);
+
     throw std::invalid_argument(errorMessage);
   }
 
@@ -110,13 +118,14 @@ GLuint linkProgram(
 
   return programHandle;
 }
+
 }  // namespace
 
 Program::Program(
     const std::string& vertexShader,
     const std::string& fragmentShader)
     : programHandle_(linkProgram(vertexShader, fragmentShader)),
-      id_(++g_idGenerator)
+      id_(++gIDGenerator)
 {
 }
 
@@ -167,6 +176,7 @@ void Program::doOperations(const std::function<void(Program&)>& operations)
 
 namespace
 {
+
 GLint getUniformLocation(
     const std::string& name,
     GLuint programHandle,
@@ -177,8 +187,8 @@ GLint getUniformLocation(
     return uniformLocationCache[name];
   }
 
-  GLint location = glGetUniformLocation(programHandle, name.c_str());
-  if (location == invalidLocation)
+  const GLint location = glGetUniformLocation(programHandle, name.c_str());
+  if (location == kInvalidLocation)
   {
     printInvalidUniform(name);
   }
@@ -186,13 +196,14 @@ GLint getUniformLocation(
   uniformLocationCache.emplace(name, location);
   return location;
 }
+
 }  // namespace
 
 void Program::setInt(const std::string& name, int value)
 {
   const GLint location =
       getUniformLocation(name, programHandle_, uniformLocationCache_);
-  if (location == invalidLocation)
+  if (location == kInvalidLocation)
   {
     return;
   }
@@ -203,7 +214,7 @@ void Program::setFloat(const std::string& name, float value)
 {
   const GLint location =
       getUniformLocation(name, programHandle_, uniformLocationCache_);
-  if (location == invalidLocation)
+  if (location == kInvalidLocation)
   {
     return;
   }
@@ -214,7 +225,7 @@ void Program::setVec2f(const std::string& name, const glm::vec2& vector)
 {
   const GLint location =
       getUniformLocation(name, programHandle_, uniformLocationCache_);
-  if (location == invalidLocation)
+  if (location == kInvalidLocation)
   {
     return;
   }
@@ -225,7 +236,7 @@ void Program::setVec2f(const std::string& name, float v0, float v1)
 {
   const GLint location =
       getUniformLocation(name, programHandle_, uniformLocationCache_);
-  if (location == invalidLocation)
+  if (location == kInvalidLocation)
   {
     return;
   }
@@ -236,7 +247,7 @@ void Program::setVec3f(const std::string& name, const glm::vec3& vector)
 {
   const GLint location =
       getUniformLocation(name, programHandle_, uniformLocationCache_);
-  if (location == invalidLocation)
+  if (location == kInvalidLocation)
   {
     return;
   }
@@ -247,7 +258,7 @@ void Program::setVec3f(const std::string& name, float v0, float v1, float v2)
 {
   const GLint location =
       getUniformLocation(name, programHandle_, uniformLocationCache_);
-  if (location == invalidLocation)
+  if (location == kInvalidLocation)
   {
     return;
   }
@@ -258,7 +269,7 @@ void Program::setVec4f(const std::string& name, const glm::vec4& vector)
 {
   const GLint location =
       getUniformLocation(name, programHandle_, uniformLocationCache_);
-  if (location == invalidLocation)
+  if (location == kInvalidLocation)
   {
     return;
   }
@@ -274,7 +285,7 @@ void Program::setVec4f(
 {
   const GLint location =
       getUniformLocation(name, programHandle_, uniformLocationCache_);
-  if (location == invalidLocation)
+  if (location == kInvalidLocation)
   {
     return;
   }
@@ -285,7 +296,7 @@ void Program::setMat4f(const std::string& name, const glm::mat4& matrix)
 {
   const GLint location =
       getUniformLocation(name, programHandle_, uniformLocationCache_);
-  if (location == invalidLocation)
+  if (location == kInvalidLocation)
   {
     return;
   }
@@ -296,11 +307,12 @@ bool Program::hasUniform(const std::string& name) const
 {
   if (uniformLocationCache_.contains(name))
   {
-    return uniformLocationCache_.at(name) != invalidLocation;
+    return uniformLocationCache_.at(name) != kInvalidLocation;
   }
 
-  GLint location = glGetUniformLocation(programHandle_, name.c_str());
-  return location != invalidLocation;
+  const GLint location = glGetUniformLocation(programHandle_, name.c_str());
+  uniformLocationCache_.emplace(name, location);
+  return location != kInvalidLocation;
 }
 
 }  // namespace Simple3D

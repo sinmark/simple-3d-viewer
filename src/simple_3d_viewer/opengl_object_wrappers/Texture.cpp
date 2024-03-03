@@ -1,4 +1,8 @@
+#include <glad/glad.h>
+
 #include "simple_3d_viewer/utils/fileOperations.hpp"
+#include <cstdio>
+#include <fmt/core.h>
 #include <stdexcept>
 #include <tl/expected.hpp>
 #define STB_IMAGE_IMPLEMENTATION
@@ -13,6 +17,8 @@ namespace Simple3D
 
 namespace
 {
+
+const char* const kErrorPrefix = "Error (Texture):";
 
 tl::expected<GLuint, std::string> createTexture2D(const Image& image)
 {
@@ -42,7 +48,7 @@ tl::expected<GLuint, std::string> createTexture2D(const Image& image)
   }
   else
   {
-    return tl::make_unexpected("Invalid number of color channels!");
+    return tl::make_unexpected("Invalid number of color channels");
   }
 
   glTexImage2D(
@@ -100,20 +106,22 @@ void Texture::init()
 
 void Texture::complete()
 {
-  assert(textureHandle_ != 0);
+  assert(textureHandle_ == 0);
   if (type_ == Type::Texture2D)
   {
-    textureHandle_ =
-        *createTexture2D(loadedImages_.front())
-             .or_else(
-                 [&path = paths_.front()](const auto& error)
-                 {
-                   throw std::invalid_argument(fmt::format(
-                       "Error: {} For texture at path: {}",
-                       error,
-                       path.c_str()));
-                   return tl::expected<GLuint, std::string>(GLuint{});
-                 });
+    auto maybeTextureHandle = createTexture2D(loadedImages_.front());
+    if (!maybeTextureHandle.has_value())
+    {
+      const auto errorMessage = fmt::format(
+          "{} {} for texture at path {}",
+          kErrorPrefix,
+          *maybeTextureHandle,
+          paths_.front().c_str());
+      fmt::println(stderr, "{}", errorMessage);
+      throw std::invalid_argument(errorMessage);
+    }
+
+    textureHandle_ = *maybeTextureHandle;
     loadedImages_.clear();
   }
   else if (type_ == Type::TextureCubeMap)
