@@ -4,6 +4,7 @@
 
 #include <GLFW/glfw3.h>
 
+#include <filesystem>
 #include <future>
 #include <memory>
 #include <simple_3d_viewer/rendering/Renderer.hpp>
@@ -47,10 +48,12 @@ class Viewer
   {
     renderer_.postprocessPipeline_.setPostprocessActiveFlag(ID, active);
   }
-  void loadModel(const std::string& pathToModel)
+  void loadModel(const std::filesystem::path& pathToModel)
   {
     if (scene_.model)
+    {
       scene_.model.reset();
+    }
     modelFuture_ = std::async(
         std::launch::async,
         [pathToModel, modelConfig = modelConfig_]()
@@ -59,7 +62,9 @@ class Viewer
   void setModelTransform(const Transform& transform)
   {
     if (scene_.model)
+    {
       scene_.model->setTransform(transform);
+    }
   }
   void setCameraSettings(Camera::Settings settings)
   {

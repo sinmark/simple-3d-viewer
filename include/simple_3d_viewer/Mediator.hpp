@@ -13,8 +13,8 @@ class Mediator : public ImGuiWrapper::Mediator, public Viewer::Mediator
   using ViewerError = Viewer::Error;
 
   Mediator(ImGuiWrapper& imGuiWrapper, Viewer& viewer)
-      : imGuiWrapper_(imGuiWrapper),
-        viewer_(viewer)
+      : viewer_(viewer),
+        imGuiWrapper_(imGuiWrapper)
   {
     imGuiWrapper_.setMediator(this);
     viewer_.setMediator(this);
@@ -27,18 +27,5 @@ class Mediator : public ImGuiWrapper::Mediator, public Viewer::Mediator
  private:
   Viewer& viewer_;
   ImGuiWrapper& imGuiWrapper_;
-
-  // GUI event handlers
-  void processPostprocessesControlsChange();
-  void processLightingControlsChange();
-  void processVisualizeLightPositionCheckboxChange();
-  void processModelControlsChange();
-  void processModelLoadingConfigurationChange();
-  void processCameraControlsChange();
-  void processLoadModel();
-  void processReloadProgram();
-
-  // Viewer event handlers
-  void processModelLoaded();
 };
 }  // namespace Simple3D

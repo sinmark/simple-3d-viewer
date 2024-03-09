@@ -1,62 +1,52 @@
+#include "simple_3d_viewer/ImGuiWrapper.hpp"
+#include "simple_3d_viewer/Viewer.hpp"
+#include "simple_3d_viewer/rendering/Model.hpp"
+#include "simple_3d_viewer/utils/constants.hpp"
 #include <filesystem>
+#include <functional>
 #include <simple_3d_viewer/Mediator.hpp>
 #include <unordered_map>
 
 namespace Simple3D
 {
-// GUI event handlers
-void Mediator::notify(GUIEvent e)
-{
-  switch (e)
-  {
-    case GUIEvent::PostprocessesControlsChange:
-      processPostprocessesControlsChange();
-      break;
-    case GUIEvent::LightingControlsChange:
-      processLightingControlsChange();
-      break;
-    case GUIEvent::VisualizeLightPositionCheckboxChange:
-      processVisualizeLightPositionCheckboxChange();
-      break;
-    case GUIEvent::ModelControlsChange: processModelControlsChange(); break;
-    case GUIEvent::ModelLoadingConfigurationChange:
-      processModelLoadingConfigurationChange();
-      break;
-    case GUIEvent::CameraControlsChange: processCameraControlsChange(); break;
-    case GUIEvent::LoadModel: processLoadModel(); break;
-    case GUIEvent::ReloadProgram: processReloadProgram(); break;
-    default: assert(false);
-  }
-}
 
-void Mediator::processPostprocessesControlsChange()
+namespace
+{
+
+void handlePostprocessesControlsChange(
+    const ImGuiWrapper& imGuiWrapper,
+    Viewer& viewer)
 {
   for (const auto& postprocessCheckbox :
-       imGuiWrapper_.getPostprocessesCheckboxes())
+       imGuiWrapper.getPostprocessesCheckboxes())
   {
-    viewer_.setPostprocessActiveFlag(
+    viewer.setPostprocessActiveFlag(
         postprocessCheckbox.text, postprocessCheckbox.value);
   }
 }
 
-void Mediator::processLightingControlsChange()
+void handleLightingControlsChange(
+    const ImGuiWrapper& imGuiWrapper,
+    Viewer& viewer)
 {
-  const auto& sliders = imGuiWrapper_.getLightControlsSliders();
+  const auto& sliders = imGuiWrapper.getLightControlsSliders();
   const glm::vec3 lightPosition{ sliders[0].currentValue,
                                  sliders[1].currentValue,
                                  sliders[2].currentValue };
-  viewer_.scene_.lightPosition = lightPosition;
+  viewer.scene_.lightPosition = lightPosition;
 }
 
-void Mediator::processVisualizeLightPositionCheckboxChange()
+void handleVisualizeLightPositionCheckboxChange(
+    const ImGuiWrapper& imGuiWrapper,
+    Viewer& viewer)
 {
-  const auto& checkboxes = imGuiWrapper_.getLightControlsCheckboxes();
-  viewer_.renderer_.drawLight_ = checkboxes[0].value;
+  const auto& checkboxes = imGuiWrapper.getLightControlsCheckboxes();
+  viewer.renderer_.drawLight_ = checkboxes[0].value;
 }
 
-void Mediator::processModelControlsChange()
+void handleModelControlsChange(const ImGuiWrapper& imGuiWrapper, Viewer& viewer)
 {
-  const auto& sliders = imGuiWrapper_.getModelControlsSliders();
+  const auto& sliders = imGuiWrapper.getModelControlsSliders();
   const glm::vec3 translation(
       sliders[0].currentValue,
       sliders[1].currentValue,
@@ -69,56 +59,67 @@ void Mediator::processModelControlsChange()
       sliders[6].currentValue,
       sliders[7].currentValue,
       sliders[8].currentValue);
-  viewer_.setModelTransform({ translation, rotation, scale });
+  viewer.setModelTransform({ translation, rotation, scale });
 }
 
-static const std::unordered_map<std::string, Model::Configuration::Flag>
-    stringToModelConfigurationFlag = {
+struct StringHash
+{
+  using is_transparent = void;  // enables heterogenous lookup
+
+  std::size_t operator()(std::string_view sv) const
+  {
+    std::hash<std::string_view> hasher;
+    return hasher(sv);
+  }
+};
+
+const std::unordered_map<
+    std::string,
+    Model::Configuration::Flag,
+    StringHash,
+    std::equal_to<>>
+    kStringToModelConfigurationFlag = {
       { "Flip UVs", Model::Configuration::Flag::FlipUVs }
     };
 
-void Mediator::processModelLoadingConfigurationChange()
+void handleModelLoadingConfigurationChange(
+    const ImGuiWrapper& imGuiWrapper,
+    Viewer& viewer)
 {
   const auto& modelLoadingConfigurationCheckboxes =
-      imGuiWrapper_.getModelLoadingConfigurationCheckboxes();
+      imGuiWrapper.getModelLoadingConfigurationCheckboxes();
   for (const auto& checkbox : modelLoadingConfigurationCheckboxes)
   {
-    viewer_.modelConfig_.set(
-        stringToModelConfigurationFlag.at(checkbox.text), checkbox.value);
+    viewer.modelConfig_.set(
+        kStringToModelConfigurationFlag.at(checkbox.text), checkbox.value);
   }
 }
 
-void Mediator::processCameraControlsChange()
+void handleCameraControlsChange(
+    const ImGuiWrapper& imGuiWrapper,
+    Viewer& viewer)
 {
-  const auto& sliders = imGuiWrapper_.getCameraControlsSliders();
-  viewer_.setCameraSettings(
+  const auto& sliders = imGuiWrapper.getCameraControlsSliders();
+  viewer.setCameraSettings(
       Camera::Settings{ sliders[0].currentValue, sliders[1].currentValue });
 }
 
-void Mediator::processLoadModel()
+void handleLoadModel(const ImGuiWrapper& imGuiWrapper, Viewer& viewer)
 {
-  std::filesystem::path path(imGuiWrapper_.getSelectedFilePath());
-  viewer_.loadModel(path.generic_string());
+  const std::filesystem::path path(imGuiWrapper.getSelectedFilePath());
+  viewer.loadModel(path);
 }
 
-void Mediator::processReloadProgram()
+void handleReloadProgram(
+    [[maybe_unused]] const ImGuiWrapper& imGuiWrapper,
+    Viewer& viewer)
 {
-  viewer_.reloadProgram();
+  viewer.reloadProgram();
 }
 
-// Viewer event handlers
-void Mediator::notify(ViewerEvent e)
+void handleModelLoaded(const ImGuiWrapper& imGuiWrapper, Viewer& viewer)
 {
-  switch (e)
-  {
-    case ViewerEvent::ModelLoaded: processModelLoaded(); break;
-    default: assert(false);
-  }
-}
-
-void Mediator::processModelLoaded()
-{
-  const auto& sliders = imGuiWrapper_.getModelControlsSliders();
+  const auto& sliders = imGuiWrapper.getModelControlsSliders();
   assert(sliders.size() == 9);
   const glm::vec3 translation(
       sliders[0].currentValue,
@@ -132,7 +133,47 @@ void Mediator::processModelLoaded()
       sliders[6].currentValue,
       sliders[7].currentValue,
       sliders[8].currentValue);
-  viewer_.setModelTransform({ translation, rotation, scale });
+  viewer.setModelTransform({ translation, rotation, scale });
+}
+
+using enum ImGuiWrapper::Event;
+
+const std::unordered_map<
+    ImGuiWrapper::Event,
+    std::function<void(const ImGuiWrapper&, Viewer&)>>
+    kGUIEventHandlers{
+      { ImGuiWrapper::Event::PostprocessesControlsChange,
+        handlePostprocessesControlsChange },
+      { ImGuiWrapper::Event::LightingControlsChange,
+        handleLightingControlsChange },
+      { ImGuiWrapper::Event::VisualizeLightPositionCheckboxChange,
+        handleVisualizeLightPositionCheckboxChange },
+      { ImGuiWrapper::Event::ModelControlsChange, handleModelControlsChange },
+      { ImGuiWrapper::Event::ModelLoadingConfigurationChange,
+        handleModelLoadingConfigurationChange },
+      { ImGuiWrapper::Event::CameraControlsChange, handleCameraControlsChange },
+      { ImGuiWrapper::Event::LoadModel, handleLoadModel },
+      { ImGuiWrapper::Event::ReloadProgram, handleReloadProgram }
+    };
+
+using enum Viewer::Event;
+
+const std::unordered_map<
+    Viewer::Event,
+    std::function<void(const ImGuiWrapper&, Viewer&)>>
+    kViewerEventHandlers{ { Viewer::Event::ModelLoaded, handleModelLoaded } };
+
+}  // namespace
+
+void Mediator::notify(GUIEvent e)
+{
+  kGUIEventHandlers.at(e)(imGuiWrapper_, viewer_);
+}
+
+// Viewer event handlers
+void Mediator::notify(ViewerEvent e)
+{
+  kViewerEventHandlers.at(e)(imGuiWrapper_, viewer_);
 }
 
 // Viewer error handlers
@@ -147,4 +188,5 @@ void Mediator::notify(ViewerError e, const std::string& errorMessage)
     default: assert(false);
   }
 }
+
 }  // namespace Simple3D
