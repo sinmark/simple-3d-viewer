@@ -11,6 +11,7 @@
 
 namespace Simple3D
 {
+
 class ImGuiWrapper
 {
  public:
@@ -22,11 +23,13 @@ class ImGuiWrapper
     float minValue;
     float maxValue;
   };
+
   struct Checkbox
   {
     std::string text;
     bool value;
   };
+
   enum class Event
   {
     PostprocessesControlsChange,
@@ -38,6 +41,7 @@ class ImGuiWrapper
     LoadModel,
     ReloadProgram,
   };
+
   class Mediator
   {
    public:
@@ -70,38 +74,44 @@ class ImGuiWrapper
   {
     mediator_ = mediator;
   }
-  void sync();
 
- public:
-  const std::string& getSelectedFilePath() const
+  [[nodiscard]] const std::string& getSelectedFilePath() const
   {
     return filePath_;
   }
-  const std::vector<Checkbox>& getPostprocessesCheckboxes() const
+
+  [[nodiscard]] const std::vector<Checkbox>& getPostprocessesCheckboxes() const
   {
     return postprocessesCheckboxes_;
   }
-  const std::vector<Checkbox>& getLightControlsCheckboxes() const
+
+  [[nodiscard]] const std::vector<Checkbox>& getLightControlsCheckboxes() const
   {
     return lightControlsCheckboxes_;
   }
-  const std::vector<Checkbox>& getModelLoadingConfigurationCheckboxes() const
+
+  [[nodiscard]] const std::vector<Checkbox>&
+  getModelLoadingConfigurationCheckboxes() const
   {
     return modelLoadingConfigurationCheckboxes_;
   }
-  const std::vector<Slider>& getLightControlsSliders() const
+
+  [[nodiscard]] const std::vector<Slider>& getLightControlsSliders() const
   {
     return lightControlsSliders_;
   }
-  const std::vector<Slider>& getModelControlsSliders() const
+
+  [[nodiscard]] const std::vector<Slider>& getModelControlsSliders() const
   {
     return modelTransformSliders_;
   }
-  const std::vector<Slider>& getCameraControlsSliders() const
+
+  [[nodiscard]] const std::vector<Slider>& getCameraControlsSliders() const
   {
     return cameraControlsSliders_;
   }
-  void printError(const std::string& errorMessage)
+
+  void printError(std::string_view errorMessage)
   {
     cachedErrorMessage_ = errorMessage;
     ImGui::OpenPopup("errorPopup");
@@ -116,12 +126,10 @@ class ImGuiWrapper
   std::vector<Slider> lightControlsSliders_;
   std::vector<Slider> modelTransformSliders_;
   std::vector<Slider> cameraControlsSliders_;
-  bool synced_{ false };
   std::string cachedErrorMessage_;
 
   void init(GLFWwindow* window);
   void drawSettingsWindow();
-  void drawErrorPopup();
   void drawMainArea();
   void drawPostprocessesArea();
   void drawLightingArea();

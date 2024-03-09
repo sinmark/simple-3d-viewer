@@ -44,7 +44,6 @@ int main()
   Simple3D::ImGuiWrapper imGuiWrapper(window, supportedPostprocesses);
   Simple3D::Viewer viewer(window, supportedPostprocesses);
   Simple3D::Mediator mediator(imGuiWrapper, viewer);
-  imGuiWrapper.sync();
 
   double previousTime = 0;
   double currentTime = glfwGetTime();

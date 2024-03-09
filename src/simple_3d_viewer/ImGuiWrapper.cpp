@@ -2,6 +2,7 @@
 
 #include <ImGuiFileDialog.h>
 #include <iterator>
+#include <mutex>
 #include <simple_3d_viewer/ImGuiWrapper.hpp>
 
 namespace Simple3D
@@ -55,26 +56,95 @@ void ImGuiWrapper::init(GLFWwindow* window)
   ImGui_ImplOpenGL3_Init(glslVersion);
 }
 
-void ImGuiWrapper::sync()
+namespace
 {
-  mediator_->notify(Event::PostprocessesControlsChange);
-  mediator_->notify(Event::LightingControlsChange);
-  mediator_->notify(Event::VisualizeLightPositionCheckboxChange);
-  mediator_->notify(Event::CameraControlsChange);
-  mediator_->notify(Event::ModelLoadingConfigurationChange);
-  synced_ = true;
+
+void sync(ImGuiWrapper::Mediator& mediator)
+{
+  using enum Simple3D::ImGuiWrapper::Event;
+  mediator.notify(PostprocessesControlsChange);
+  mediator.notify(LightingControlsChange);
+  mediator.notify(VisualizeLightPositionCheckboxChange);
+  mediator.notify(CameraControlsChange);
+  mediator.notify(ModelLoadingConfigurationChange);
 }
+
+bool BeginPopupCentered(const std::string& name)
+{
+  const ImGuiIO& io = ImGui::GetIO();
+  const ImVec2 pos(io.DisplaySize.x * 0.5f, io.DisplaySize.y * 0.5f);
+  ImGui::SetNextWindowPos(pos, ImGuiCond_Always, ImVec2(0.5f, 0.5f));
+  const int width = 400;
+  const int height = 100;
+  const ImVec2 size(width, height);
+  ImGui::SetNextWindowSize(size);
+  const ImGuiWindowFlags flags = ImGuiWindowFlags_MenuBar |
+                                 ImGuiWindowFlags_HorizontalScrollbar |
+                                 ImGuiWindowFlags_NoSavedSettings;
+  return ImGui::BeginPopup(name.c_str(), flags);
+}
+
+void drawErrorPopup(const std::string& errorMessage)
+{
+  if (BeginPopupCentered("errorPopup"))
+  {
+    ImGui::Text("%s", errorMessage.c_str());
+    ImGui::End();
+  }
+}
+
+bool drawCheckboxes(std::vector<ImGuiWrapper::Checkbox>& checkboxes)
+{
+  bool changed = false;
+  for (auto& checkbox : checkboxes)
+  {
+    changed =
+        ImGui::Checkbox(checkbox.text.c_str(), &checkbox.value) || changed;
+  }
+  return changed;
+}
+
+bool drawCheckbox(ImGuiWrapper::Checkbox& checkbox)
+{
+  return ImGui::Checkbox(checkbox.text.c_str(), &checkbox.value);
+}
+
+bool drawSliders(std::vector<ImGuiWrapper::Slider>& sliders)
+{
+  bool changed = false;
+  for (auto& slider : sliders)
+  {
+    changed = ImGui::SliderFloat(
+                  slider.text.c_str(),
+                  &slider.currentValue,
+                  slider.minValue,
+                  slider.maxValue) ||
+              changed;
+  }
+  return changed;
+}
+
+void resetSliders(std::vector<ImGuiWrapper::Slider>& sliders)
+{
+  for (auto& slider : sliders)
+  {
+    slider.currentValue = slider.defaultValue;
+  }
+}
+}  // namespace
 
 void ImGuiWrapper::update()
 {
   assert(mediator_);
-  assert(synced_);
+  static std::once_flag sync_flag;
+  std::call_once(sync_flag, sync, *mediator_);
+
   // Start the Dear ImGui frame
   ImGui_ImplOpenGL3_NewFrame();
   ImGui_ImplGlfw_NewFrame();
   ImGui::NewFrame();
   drawSettingsWindow();
-  drawErrorPopup();
+  drawErrorPopup(cachedErrorMessage_);
   ImGui::End();
 }
 
@@ -90,63 +160,6 @@ void ImGuiWrapper::drawSettingsWindow()
   drawModelArea();
   ImGui::Separator();
   drawCameraArea();
-}
-
-static inline bool BeginPopupCentered(const char* name)
-{
-  const ImGuiIO& io = ImGui::GetIO();
-  const ImVec2 pos(io.DisplaySize.x * 0.5f, io.DisplaySize.y * 0.5f);
-  ImGui::SetNextWindowPos(pos, ImGuiCond_Always, ImVec2(0.5f, 0.5f));
-  const int width = 400, height = 100;
-  const ImVec2 size(width, height);
-  ImGui::SetNextWindowSize(size);
-  const ImGuiWindowFlags flags = ImGuiWindowFlags_MenuBar |
-                                 ImGuiWindowFlags_HorizontalScrollbar |
-                                 ImGuiWindowFlags_NoSavedSettings;
-  return ImGui::BeginPopup(name, flags);
-}
-
-void ImGuiWrapper::drawErrorPopup()
-{
-  if (BeginPopupCentered("errorPopup"))
-  {
-    ImGui::Text(cachedErrorMessage_.c_str());
-    ImGui::End();
-  }
-}
-
-static inline bool drawCheckboxes(
-    std::vector<ImGuiWrapper::Checkbox>& checkboxes)
-{
-  bool changed = false;
-  for (auto& checkbox : checkboxes)
-    changed =
-        ImGui::Checkbox(checkbox.text.c_str(), &checkbox.value) || changed;
-  return changed;
-}
-
-static inline bool drawCheckbox(ImGuiWrapper::Checkbox& checkbox)
-{
-  return ImGui::Checkbox(checkbox.text.c_str(), &checkbox.value);
-}
-
-static inline bool drawSliders(std::vector<ImGuiWrapper::Slider>& sliders)
-{
-  bool changed = false;
-  for (auto& slider : sliders)
-    changed = ImGui::SliderFloat(
-                  slider.text.c_str(),
-                  &slider.currentValue,
-                  slider.minValue,
-                  slider.maxValue) ||
-              changed;
-  return changed;
-}
-
-static inline void resetSliders(std::vector<ImGuiWrapper::Slider>& sliders)
-{
-  for (auto& slider : sliders)
-    slider.currentValue = slider.defaultValue;
 }
 
 void ImGuiWrapper::drawMainArea()

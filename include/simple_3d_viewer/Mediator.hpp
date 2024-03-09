@@ -5,6 +5,7 @@
 
 namespace Simple3D
 {
+
 class Mediator : public ImGuiWrapper::Mediator, public Viewer::Mediator
 {
  public:
@@ -28,4 +29,5 @@ class Mediator : public ImGuiWrapper::Mediator, public Viewer::Mediator
   Viewer& viewer_;
   ImGuiWrapper& imGuiWrapper_;
 };
+
 }  // namespace Simple3D
