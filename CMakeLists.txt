@@ -111,11 +111,6 @@ endif()
 
 message(STATUS "Added all header and implementation files.\n")
 
-include(cmake/CompilerWarnings.cmake)
-set_project_warnings(${PROJECT_NAME})
-
-verbose_message("Applied compiler warnings. Using standard ${CMAKE_CXX_STANDARD}.\n")
-
 # Project library reference
 if(${PROJECT_NAME}_BUILD_EXECUTABLE)
   set(PROJECT_LIBRARY ${PROJECT_NAME}_LIB)
@@ -125,28 +120,11 @@ endif()
 
 verbose_message("Project library reference: ${PROJECT_LIBRARY}\n")
 
-#
-# Model project dependencies
-#
+include(cmake/CompilerWarnings.cmake)
+set_project_warnings(${PROJECT_LIBRARY})
 
-# Identify and link with the specific "packages" the project uses
-# find_package(package_name package_version REQUIRED package_type [other_options])
-# target_link_libraries(
-# ${PROJECT_NAME}
-# PUBLIC
-# dependency1 ...
-# PRIVATE
-# dependency2 ...
-# ${PROJECT_NAME}_PROJECT_OPTIONS
-# ${PROJECT_NAME}_PROJECT_WARNINGS
-# )
-# if(${PROJECT_NAME}_BUILD_EXECUTABLE AND ${PROJECT_NAME}_ENABLE_UNIT_TESTING)
-# target_link_libraries(
-# ${PROJECT_NAME}_LIB
-# PUBLIC
-# dependency1 ...
-# )
-# endif()
+verbose_message("Applied compiler warnings. Using standard ${CMAKE_CXX_STANDARD}.\n")
+
 find_package(glfw3 CONFIG REQUIRED)
 find_package(imgui CONFIG REQUIRED)
 find_package(assimp CONFIG REQUIRED)
@@ -157,8 +135,10 @@ find_package(fmt CONFIG REQUIRED)
 add_subdirectory(external/glad)
 add_subdirectory(external/ImGuiFileDialog)
 
+# Link dependencies
 target_link_libraries(${PROJECT_NAME}_LIB PUBLIC glfw glad imgui::imgui assimp::assimp ImGuiFileDialog fmt::fmt tl::expected)
 
+# Copy resources folder to binary dir
 add_custom_target(copy_resources
   COMMAND ${CMAKE_COMMAND} -DPROJECT_OUTPUT_DIR=${${PROJECT_NAME}_OUTPUT_DIR} -P ${CMAKE_CURRENT_LIST_DIR}/copy_resources.cmake
 )
