@@ -23,9 +23,7 @@ class Texture
   explicit Texture(const std::filesystem::path& path, bool doOpenGLStuff = true)
       : type_(Type::Texture2D)
   {
-    const int imagesCount = 1;
     paths_.emplace_back(path);
-    loadedImages_.reserve(imagesCount);
     if (doOpenGLStuff)
     {
       init();
@@ -41,7 +39,6 @@ class Texture
       : paths_(std::move(paths)),
         type_(Type::TextureCubeMap)
   {
-    assert(paths.size() == imagesCount);
     if (doOpenGLStuff)
     {
       init();
