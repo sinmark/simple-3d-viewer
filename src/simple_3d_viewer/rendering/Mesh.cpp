@@ -13,7 +13,7 @@ namespace
 
 char* attributeOffset(GLuint value)
 {
-  return static_cast<char*>(nullptr) + value;
+  return std::next(static_cast<char*>(nullptr), value);
 }
 
 }  // namespace
@@ -27,7 +27,7 @@ void Mesh::init()
   glBindBuffer(GL_ARRAY_BUFFER, vbo_);
   glBufferData(
       GL_ARRAY_BUFFER,
-      static_cast<GLsizeiptr>(vertices_.size()) * sizeof(Vertex),
+      static_cast<GLsizeiptr>(vertices_.size() * sizeof(Vertex)),
       vertices_.data(),
       GL_STATIC_DRAW);
 
@@ -125,7 +125,7 @@ void Mesh::init()
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo_);
     glBufferData(
         GL_ELEMENT_ARRAY_BUFFER,
-        static_cast<GLsizeiptr>(indices_.size()) * sizeof(GLuint),
+        static_cast<GLsizeiptr>(indices_.size() * sizeof(GLuint)),
         indices_.data(),
         GL_STATIC_DRAW);
   }
@@ -139,7 +139,6 @@ void Mesh::release()
 {
   if (vao_ != 0)
   {
-    assert(vao_ && vbo_);
     glDeleteVertexArrays(1, &vao_);
     glDeleteBuffers(1, &vbo_);
     if (ebo_ != 0)
