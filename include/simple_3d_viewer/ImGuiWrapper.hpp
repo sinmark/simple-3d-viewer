@@ -12,24 +12,28 @@
 namespace Simple3D
 {
 
+struct Slider
+{
+  std::string text;
+  float defaultValue;
+  float currentValue;
+  float minValue;
+  float maxValue;
+};
+
+using Sliders = std::vector<Slider>;
+
+struct Checkbox
+{
+  std::string text;
+  bool value;
+};
+
+using Checkboxes = std::vector<Checkbox>;
+
 class ImGuiWrapper
 {
  public:
-  struct Slider
-  {
-    std::string text;
-    float defaultValue;
-    float currentValue;
-    float minValue;
-    float maxValue;
-  };
-
-  struct Checkbox
-  {
-    std::string text;
-    bool value;
-  };
-
   enum class Event
   {
     PostprocessesControlsChange,
@@ -120,18 +124,15 @@ class ImGuiWrapper
  private:
   Mediator* mediator_{ nullptr };
   std::string filePath_;
-  std::vector<Checkbox> postprocessesCheckboxes_;
-  std::vector<Checkbox> lightControlsCheckboxes_;
-  std::vector<Checkbox> modelLoadingConfigurationCheckboxes_;
-  std::vector<Slider> lightControlsSliders_;
-  std::vector<Slider> modelTransformSliders_;
-  std::vector<Slider> cameraControlsSliders_;
+  Checkboxes postprocessesCheckboxes_;
+  Checkboxes lightControlsCheckboxes_;
+  Checkboxes modelLoadingConfigurationCheckboxes_;
+  Sliders lightControlsSliders_;
+  Sliders modelTransformSliders_;
+  Sliders cameraControlsSliders_;
   std::string cachedErrorMessage_;
 
-  void init(GLFWwindow* window);
   void drawSettingsWindow();
-  void drawMainArea();
-  void drawPostprocessesArea();
   void drawLightingArea();
   void drawModelArea();
   void drawCameraArea();

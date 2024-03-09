@@ -7,6 +7,119 @@
 
 namespace Simple3D
 {
+
+namespace
+{
+
+void init(GLFWwindow* window)
+{
+  // Setup ImGui context
+  IMGUI_CHECKVERSION();
+  ImGui::CreateContext();
+  ImGui::StyleColorsClassic();
+
+  // Setup Platform/Renderer backends
+  ImGui_ImplGlfw_InitForOpenGL(window, true);
+  const char* glslVersion = "#version 330";
+  ImGui_ImplOpenGL3_Init(glslVersion);
+}
+
+void sync(ImGuiWrapper::Mediator& mediator)
+{
+  using enum Simple3D::ImGuiWrapper::Event;
+  mediator.notify(PostprocessesControlsChange);
+  mediator.notify(LightingControlsChange);
+  mediator.notify(VisualizeLightPositionCheckboxChange);
+  mediator.notify(CameraControlsChange);
+  mediator.notify(ModelLoadingConfigurationChange);
+}
+
+bool BeginPopupCentered(const std::string& name)
+{
+  const ImGuiIO& io = ImGui::GetIO();
+  const ImVec2 pos(io.DisplaySize.x * 0.5f, io.DisplaySize.y * 0.5f);
+  ImGui::SetNextWindowPos(pos, ImGuiCond_Always, ImVec2(0.5f, 0.5f));
+  const int width = 400;
+  const int height = 100;
+  const ImVec2 size(width, height);
+  ImGui::SetNextWindowSize(size);
+  const ImGuiWindowFlags flags = ImGuiWindowFlags_MenuBar |
+                                 ImGuiWindowFlags_HorizontalScrollbar |
+                                 ImGuiWindowFlags_NoSavedSettings;
+  return ImGui::BeginPopup(name.c_str(), flags);
+}
+
+void drawErrorPopup(const std::string& errorMessage)
+{
+  if (BeginPopupCentered("errorPopup"))
+  {
+    ImGui::Text("%s", errorMessage.c_str());
+    ImGui::End();
+  }
+}
+
+bool drawCheckboxes(Checkboxes& checkboxes)
+{
+  bool changed = false;
+  for (auto& checkbox : checkboxes)
+  {
+    changed =
+        ImGui::Checkbox(checkbox.text.c_str(), &checkbox.value) || changed;
+  }
+  return changed;
+}
+
+bool drawCheckbox(Checkbox& checkbox)
+{
+  return ImGui::Checkbox(checkbox.text.c_str(), &checkbox.value);
+}
+
+bool drawSliders(Sliders& sliders)
+{
+  bool changed = false;
+  for (auto& slider : sliders)
+  {
+    changed = ImGui::SliderFloat(
+                  slider.text.c_str(),
+                  &slider.currentValue,
+                  slider.minValue,
+                  slider.maxValue) ||
+              changed;
+  }
+  return changed;
+}
+
+void resetSliders(Sliders& sliders)
+{
+  for (auto& slider : sliders)
+  {
+    slider.currentValue = slider.defaultValue;
+  }
+}
+
+void drawMainArea()
+{
+  ImGui::Text(
+      "Application average %.1f FPS",
+      static_cast<double>(ImGui::GetIO().Framerate));
+  ImGui::Text("Made by: Sinisa Markovic");
+  ImGui::Separator();
+}
+
+void drawPostprocessesArea(
+    Checkboxes& postprocessesCheckboxes,
+    ImGuiWrapper::Mediator& mediator)
+{
+  ImGui::Text("Postprocesses controls:");
+  if (drawCheckboxes(postprocessesCheckboxes))
+  {
+    mediator.notify(ImGuiWrapper::Event::PostprocessesControlsChange);
+  }
+  ImGui::Separator();
+}
+
+}  // namespace
+
 ImGuiWrapper::ImGuiWrapper(
     GLFWwindow* window,
     const std::vector<std::string>& postprocesses)
@@ -43,96 +156,6 @@ ImGuiWrapper::ImGuiWrapper(
   init(window);
 }
 
-void ImGuiWrapper::init(GLFWwindow* window)
-{
-  assert(!mediator_);
-  // Setup ImGui context
-  IMGUI_CHECKVERSION();
-  ImGui::CreateContext();
-  ImGui::StyleColorsClassic();
-  // Setup Platform/Renderer backends
-  ImGui_ImplGlfw_InitForOpenGL(window, true);
-  const char* glslVersion = "#version 330";
-  ImGui_ImplOpenGL3_Init(glslVersion);
-}
-
-namespace
-{
-
-void sync(ImGuiWrapper::Mediator& mediator)
-{
-  using enum Simple3D::ImGuiWrapper::Event;
-  mediator.notify(PostprocessesControlsChange);
-  mediator.notify(LightingControlsChange);
-  mediator.notify(VisualizeLightPositionCheckboxChange);
-  mediator.notify(CameraControlsChange);
-  mediator.notify(ModelLoadingConfigurationChange);
-}
-
-bool BeginPopupCentered(const std::string& name)
-{
-  const ImGuiIO& io = ImGui::GetIO();
-  const ImVec2 pos(io.DisplaySize.x * 0.5f, io.DisplaySize.y * 0.5f);
-  ImGui::SetNextWindowPos(pos, ImGuiCond_Always, ImVec2(0.5f, 0.5f));
-  const int width = 400;
-  const int height = 100;
-  const ImVec2 size(width, height);
-  ImGui::SetNextWindowSize(size);
-  const ImGuiWindowFlags flags = ImGuiWindowFlags_MenuBar |
-                                 ImGuiWindowFlags_HorizontalScrollbar |
-                                 ImGuiWindowFlags_NoSavedSettings;
-  return ImGui::BeginPopup(name.c_str(), flags);
-}
-
-void drawErrorPopup(const std::string& errorMessage)
-{
-  if (BeginPopupCentered("errorPopup"))
-  {
-    ImGui::Text("%s", errorMessage.c_str());
-    ImGui::End();
-  }
-}
-
-bool drawCheckboxes(std::vector<ImGuiWrapper::Checkbox>& checkboxes)
-{
-  bool changed = false;
-  for (auto& checkbox : checkboxes)
-  {
-    changed =
-        ImGui::Checkbox(checkbox.text.c_str(), &checkbox.value) || changed;
-  }
-  return changed;
-}
-
-bool drawCheckbox(ImGuiWrapper::Checkbox& checkbox)
-{
-  return ImGui::Checkbox(checkbox.text.c_str(), &checkbox.value);
-}
-
-bool drawSliders(std::vector<ImGuiWrapper::Slider>& sliders)
-{
-  bool changed = false;
-  for (auto& slider : sliders)
-  {
-    changed = ImGui::SliderFloat(
-                  slider.text.c_str(),
-                  &slider.currentValue,
-                  slider.minValue,
-                  slider.maxValue) ||
-              changed;
-  }
-  return changed;
-}
-
-void resetSliders(std::vector<ImGuiWrapper::Slider>& sliders)
-{
-  for (auto& slider : sliders)
-  {
-    slider.currentValue = slider.defaultValue;
-  }
-}
-}  // namespace
-
 void ImGuiWrapper::update()
 {
   assert(mediator_);
@@ -152,34 +175,19 @@ void ImGuiWrapper::drawSettingsWindow()
 {
   ImGui::Begin("Settings", nullptr);
   drawMainArea();
-  ImGui::Separator();
-  drawPostprocessesArea();
-  ImGui::Separator();
+  drawPostprocessesArea(postprocessesCheckboxes_, *mediator_);
   drawLightingArea();
-  ImGui::Separator();
   drawModelArea();
-  ImGui::Separator();
   drawCameraArea();
-}
-
-void ImGuiWrapper::drawMainArea()
-{
-  ImGui::Text("Application average %.1f FPS", ImGui::GetIO().Framerate);
-  ImGui::Text("Made by: Sinisa Markovic");
-}
-
-void ImGuiWrapper::drawPostprocessesArea()
-{
-  ImGui::Text("Postprocesses controls:");
-  if (drawCheckboxes(postprocessesCheckboxes_))
-    mediator_->notify(Event::PostprocessesControlsChange);
 }
 
 void ImGuiWrapper::drawLightingArea()
 {
   ImGui::Text("Light controls:");
   if (drawSliders(lightControlsSliders_))
+  {
     mediator_->notify(Event::LightingControlsChange);
+  }
   if (ImGui::Button("Reset light position"))
   {
     resetSliders(lightControlsSliders_);
@@ -188,14 +196,19 @@ void ImGuiWrapper::drawLightingArea()
 
   ImGui::Spacing();
   if (drawCheckbox(lightControlsCheckboxes_[0]))
+  {
     mediator_->notify(Event::VisualizeLightPositionCheckboxChange);
+  }
+  ImGui::Separator();
 }
 
 void ImGuiWrapper::drawModelArea()
 {
   ImGui::Text("Model controls:");
   if (drawSliders(modelTransformSliders_))
+  {
     mediator_->notify(Event::ModelControlsChange);
+  }
   if (ImGui::Button("Reset model transform"))
   {
     resetSliders(modelTransformSliders_);
@@ -205,12 +218,17 @@ void ImGuiWrapper::drawModelArea()
   ImGui::Spacing();
   ImGui::Text("Model loading configuration:");
   if (drawCheckboxes(modelLoadingConfigurationCheckboxes_))
+  {
     mediator_->notify(Event::ModelLoadingConfigurationChange);
+  }
 
   loadModelDialog();
   ImGui::SameLine();
   if (ImGui::Button("Reload model shaders"))
+  {
     mediator_->notify(Event::ReloadProgram);
+  }
+  ImGui::Separator();
 }
 
 void ImGuiWrapper::drawCameraArea()
