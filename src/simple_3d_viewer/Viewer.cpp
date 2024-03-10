@@ -23,9 +23,6 @@ Viewer::Viewer(
   // Skybox initialization
   scene_.skyboxProgram.doOperations([](Program& program)
                                     { program.setInt("skybox", 0); });
-
-  // Model initialization
-  modelConfig_.set(Model::Configuration::Flag::IssueRenderingAPICalls, false);
 }
 
 namespace

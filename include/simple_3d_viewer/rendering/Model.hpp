@@ -7,6 +7,7 @@
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 #include <bitset>
+#include <cstddef>
 #include <filesystem>
 #include <glm/glm.hpp>
 #include <simple_3d_viewer/linear_algebra/Transform.hpp>
@@ -14,11 +15,13 @@
 #include <simple_3d_viewer/rendering/Material.hpp>
 #include <simple_3d_viewer/rendering/Mesh.hpp>
 #include <stb_image.h>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
 namespace Simple3D
 {
+
 class Model
 {
  public:
@@ -27,24 +30,37 @@ class Model
    public:
     enum class Flag
     {
-      IssueRenderingAPICalls,
       FlipUVs,
       FlagsCount,
     };
 
     void set(Flag flag, bool value)
     {
-      flags_.set(static_cast<uint32_t>(flag), value);
+      if (flag == Flag::FlagsCount)
+      {
+        throw std::invalid_argument("FlagsCount should never be used");
+      }
+
+      flags_.set(static_cast<size_t>(flag), value);
     }
-    bool get(Flag flag) const
+
+    [[nodiscard]] bool get(Flag flag) const
     {
+      if (flag == Flag::FlagsCount)
+      {
+        throw std::invalid_argument("FlagsCount should never be used");
+      }
+
       return flags_[static_cast<uint32_t>(flag)];
     }
-    unsigned int getEquivalentAssimpFlags() const
+
+    [[nodiscard]] unsigned int getEquivalentAssimpFlags() const
     {
       unsigned int flags = 0;
       for (const auto& [flag, assimpFlag] : flagToAssimpFlag_)
-        flags = flags | (flags_[static_cast<uint32_t>(flag)] ? assimpFlag : 0);
+      {
+        flags = flags | (flags_[static_cast<size_t>(flag)] ? assimpFlag : 0);
+      }
       return flags;
     }
 
@@ -56,9 +72,8 @@ class Model
   Model(
       const std::filesystem::path& modelFilePath,
       const Configuration& configuration)
-      : configuration_(configuration)
   {
-    loadModel(modelFilePath);
+    loadModel(modelFilePath, configuration);
   }
 
   glm::mat4x4 transform_{ calculateModelTransform(
@@ -70,9 +85,13 @@ class Model
   void complete()
   {
     for (auto& texture : textures_)
+    {
       texture.complete();
+    }
     for (auto& mesh : meshes_)
+    {
       mesh.complete();
+    }
   }
 
   void setTransform(const Transform& transform)
@@ -80,27 +99,35 @@ class Model
     transform_ = calculateModelTransform(transform);
   }
 
-  uint64_t getID() const
+  [[nodiscard]] uint64_t getId() const
   {
     return id_;
   }
 
  private:
-  Configuration configuration_;
-  std::string modelDirectory_;
   uint64_t id_ = generateSimpleId();
 
-  void loadModel(const std::filesystem::path& modelFilePath);
-  void processMaterials(const aiScene* scene);
-  void processNode(aiNode* node, const aiScene* scene);
-  void loadMaterialTextures(aiMaterial* assimpMaterial);
+  void loadModel(
+      const std::filesystem::path& modelFilePath,
+      const Configuration& configuration);
+  void processMaterials(
+      const aiScene& scene,
+      const std::filesystem::path& modelDirectory);
+  void processNode(const aiNode& node, const aiScene& scene);
+  void loadMaterialTextures(
+      const aiMaterial& assimpMaterial,
+      const std::filesystem::path& modelDirectory);
   void loadMaterialTexturesOfType(
-      aiMaterial* assimpMaterial,
-      aiTextureType type);
-  Material processMaterial(aiMaterial* assimpMaterial);
+      const aiMaterial& assimpMaterial,
+      aiTextureType type,
+      const std::filesystem::path& modelDirectory);
+  Material processMaterial(
+      const aiMaterial& assimpMaterial,
+      const std::filesystem::path& modelDirectory);
   std::vector<Material::TextureData> getBelongingTextures(
-      aiMaterial* assimpMaterial,
-      aiTextureType type);
-  Mesh processMesh(aiMesh* assimpMesh, const aiScene* scene);
+      const aiMaterial& assimpMaterial,
+      aiTextureType type,
+      const std::filesystem::path& modelDirectory);
+  Mesh processMesh(const aiMesh& assimpMesh);
 };
 }  // namespace Simple3D
