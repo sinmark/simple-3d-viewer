@@ -18,7 +18,6 @@ namespace Simple3D
 namespace
 {
 
-uint64_t gIDGenerator = 0;
 const char* const kErrorPrefix = "Error (Program):";
 constexpr GLint kInvalidLocation = -1;
 
@@ -124,8 +123,7 @@ GLuint linkProgram(
 Program::Program(
     const std::string& vertexShader,
     const std::string& fragmentShader)
-    : programHandle_(linkProgram(vertexShader, fragmentShader)),
-      id_(++gIDGenerator)
+    : programHandle_(linkProgram(vertexShader, fragmentShader))
 {
 }
 

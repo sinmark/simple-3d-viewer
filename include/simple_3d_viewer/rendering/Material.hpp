@@ -2,6 +2,7 @@
 
 #include <glad/glad.h>
 
+#include "simple_3d_viewer/utils/simpleIdGenerator.hpp"
 #include <optional>
 #include <simple_3d_viewer/opengl_object_wrappers/Program.hpp>
 #include <simple_3d_viewer/opengl_object_wrappers/Texture.hpp>
@@ -30,8 +31,7 @@ class Material
         emissiveTextures_(std::move(emissiveTextures)),
         normalsTextures_(std::move(normalsTextures)),
         metalnessTextures_(std::move(metalnessTextures)),
-        diffuseRoughnessTextures_(std::move(diffuseRoughnessTextures)),
-        id_(idGenerator_++)
+        diffuseRoughnessTextures_(std::move(diffuseRoughnessTextures))
   {
   }
 
@@ -56,9 +56,7 @@ class Material
   std::vector<TextureData> normalsTextures_;
   std::vector<TextureData> metalnessTextures_;
   std::vector<TextureData> diffuseRoughnessTextures_;
-  const uint64_t id_;
-
-  static uint64_t idGenerator_;
+  uint64_t id_ = generateSimpleId();
 
   void prepareTexturesForUse(Program& program);
   void setUniforms(Program& program);

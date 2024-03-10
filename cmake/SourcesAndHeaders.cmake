@@ -15,6 +15,7 @@ set(sources
   src/simple_3d_viewer/linear_algebra/Transform.cpp
   src/simple_3d_viewer/utils/fileOperations.cpp
   src/simple_3d_viewer/utils/Image.cpp
+  src/simple_3d_viewer/utils/simpleIdGenerator.cpp
 )
 
 set(exe_sources
@@ -43,4 +44,5 @@ set(headers
   include/simple_3d_viewer/utils/glfwUtils.hpp
   include/simple_3d_viewer/utils/Size.hpp
   include/simple_3d_viewer/utils/Image.hpp
+  include/simple_3d_viewer/utils/simpleIdGenerator.hpp
 )

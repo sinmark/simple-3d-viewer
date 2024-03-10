@@ -7,7 +7,6 @@
 
 namespace Simple3D
 {
-uint64_t Model::idGenerator_ = 0;
 
 const std::unordered_map<Model::Configuration::Flag, aiPostProcessSteps>
     Model::Configuration::flagToAssimpFlag_ = {

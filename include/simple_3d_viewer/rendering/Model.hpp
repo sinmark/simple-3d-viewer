@@ -2,6 +2,7 @@
 
 #include <glad/glad.h>
 
+#include "simple_3d_viewer/utils/simpleIdGenerator.hpp"
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
@@ -55,8 +56,7 @@ class Model
   Model(
       const std::filesystem::path& modelFilePath,
       const Configuration& configuration)
-      : configuration_(configuration),
-        id_(idGenerator_++)
+      : configuration_(configuration)
   {
     loadModel(modelFilePath);
   }
@@ -74,10 +74,12 @@ class Model
     for (auto& mesh : meshes_)
       mesh.complete();
   }
+
   void setTransform(const Transform& transform)
   {
     transform_ = calculateModelTransform(transform);
   }
+
   uint64_t getID() const
   {
     return id_;
@@ -86,9 +88,7 @@ class Model
  private:
   Configuration configuration_;
   std::string modelDirectory_;
-  uint64_t id_;
-
-  static uint64_t idGenerator_;
+  uint64_t id_ = generateSimpleId();
 
   void loadModel(const std::filesystem::path& modelFilePath);
   void processMaterials(const aiScene* scene);

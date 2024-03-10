@@ -2,7 +2,6 @@
 
 namespace Simple3D
 {
-uint64_t Material::idGenerator_ = 0;
 
 void Material::use(Program& program)
 {
