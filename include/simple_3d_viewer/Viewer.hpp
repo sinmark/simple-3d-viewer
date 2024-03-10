@@ -38,10 +38,6 @@ class Viewer
 
   Viewer(GLFWwindow* window, const std::vector<std::string>& postprocessIDs);
 
-  Scene scene_;
-  Renderer renderer_;
-  Model::Configuration modelConfig_;
-
   void processInput(float delta)
   {
     if (mediator_ == nullptr)
@@ -91,12 +87,28 @@ class Viewer
     mediator_ = std::move(mediator);
   }
 
+  [[nodiscard]] Renderer& getRenderer()
+  {
+    return renderer_;
+  }
+
+  [[nodiscard]] Scene& getScene()
+  {
+    return scene_;
+  }
+
+  [[nodiscard]] Model::Configuration& getModelConfiguration()
+  {
+    return modelConfig_;
+  }
+
  private:
   GLFWwindow* window_;
   std::future<Model> modelFuture_;
   std::shared_ptr<Mediator> mediator_;
-
-  void init();
-  void isModelLoaded();
+  Scene scene_;
+  Renderer renderer_;
+  Model::Configuration modelConfig_;
 };
+
 }  // namespace Simple3D

@@ -33,7 +33,7 @@ void handleLightingControlsChange(
   const glm::vec3 lightPosition{ sliders[0].currentValue,
                                  sliders[1].currentValue,
                                  sliders[2].currentValue };
-  viewer.scene_.lightPosition = lightPosition;
+  viewer.getScene().lightPosition = lightPosition;
 }
 
 void handleVisualizeLightPositionCheckboxChange(
@@ -41,7 +41,7 @@ void handleVisualizeLightPositionCheckboxChange(
     Viewer& viewer)
 {
   const auto& checkboxes = imGuiWrapper.getLightControlsCheckboxes();
-  viewer.renderer_.drawLight_ = checkboxes[0].value;
+  viewer.getRenderer().drawLight_ = checkboxes[0].value;
 }
 
 void handleModelControlsChange(const ImGuiWrapper& imGuiWrapper, Viewer& viewer)
@@ -90,7 +90,7 @@ void handleModelLoadingConfigurationChange(
       imGuiWrapper.getModelLoadingConfigurationCheckboxes();
   for (const auto& checkbox : modelLoadingConfigurationCheckboxes)
   {
-    viewer.modelConfig_.set(
+    viewer.getModelConfiguration().set(
         kStringToModelConfigurationFlag.at(checkbox.text), checkbox.value);
   }
 }
@@ -119,7 +119,6 @@ void handleReloadProgram(
 void handleModelLoaded(const ImGuiWrapper& imGuiWrapper, Viewer& viewer)
 {
   const auto& sliders = imGuiWrapper.getModelControlsSliders();
-  assert(sliders.size() == 9);
   const glm::vec3 translation(
       sliders[0].currentValue,
       sliders[1].currentValue,

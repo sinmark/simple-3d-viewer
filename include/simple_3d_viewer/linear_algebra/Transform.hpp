@@ -6,6 +6,7 @@
 
 namespace Simple3D
 {
+
 struct Transform
 {
   glm::vec3 translation;
@@ -15,4 +16,5 @@ struct Transform
 
 glm::mat4x4 calculateModelTransform(const Transform& transform);
 glm::mat4x4 calculateProjectionTransform(Size size);
+
 }  // namespace Simple3D

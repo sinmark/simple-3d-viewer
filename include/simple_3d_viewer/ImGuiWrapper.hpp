@@ -82,33 +82,32 @@ class ImGuiWrapper
     return modelFilePath_;
   }
 
-  [[nodiscard]] const std::vector<Checkbox>& getPostprocessesCheckboxes() const
+  [[nodiscard]] const Checkboxes& getPostprocessesCheckboxes() const
   {
     return postprocessesCheckboxes_;
   }
 
-  [[nodiscard]] const std::vector<Checkbox>& getLightControlsCheckboxes() const
+  [[nodiscard]] const Checkboxes& getLightControlsCheckboxes() const
   {
     return lightControlsCheckboxes_;
   }
 
-  [[nodiscard]] const std::vector<Checkbox>&
-  getModelLoadingConfigurationCheckboxes() const
+  [[nodiscard]] const Checkboxes& getModelLoadingConfigurationCheckboxes() const
   {
     return modelLoadingConfigurationCheckboxes_;
   }
 
-  [[nodiscard]] const std::vector<Slider>& getLightControlsSliders() const
+  [[nodiscard]] const Sliders& getLightControlsSliders() const
   {
     return lightControlsSliders_;
   }
 
-  [[nodiscard]] const std::vector<Slider>& getModelControlsSliders() const
+  [[nodiscard]] const Sliders& getModelControlsSliders() const
   {
     return modelTransformSliders_;
   }
 
-  [[nodiscard]] const std::vector<Slider>& getCameraControlsSliders() const
+  [[nodiscard]] const Sliders& getCameraControlsSliders() const
   {
     return cameraControlsSliders_;
   }
