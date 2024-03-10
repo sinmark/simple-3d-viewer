@@ -243,7 +243,7 @@ ImGuiWrapper::ImGuiWrapper(
                               { "Scale Y", 1.f, 1.f, 0.f, 100.f },
                               { "Scale Z", 1.f, 1.f, 0.f, 100.f } },
       cameraControlsSliders_{ { "Speed", 2.f, 2.f, 0.1f, 100.f },
-                              { "Sensitivity", 0.2f, 0.2f, 0.1f, 10.f } },
+                              { "Sensitivity", 5.0f, 5.0f, 0.1f, 20.f } },
       postprocessesCheckboxes_(
           [&postprocesses]()
           {

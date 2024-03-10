@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtx/vector_angle.hpp>
 #include <simple_3d_viewer/rendering/Camera.hpp>
@@ -34,14 +35,17 @@ void Camera::processInput(float delta, GLFWwindow* window)
     position_ += deltaSpeed * -up_;
   }
 
-  const float deltaSensitivity = sensitivity * delta;
+  const auto deltaSensitivity = sensitivity * delta;
   const auto rightMouseButtonClickState =
       glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT);
   if (rightMouseButtonClickState == GLFW_PRESS)
   {
-    double mouseX{};
-    double mouseY{};
-    glfwGetCursorPos(window, &mouseX, &mouseY);
+    double mouseXTemp{};
+    double mouseYTemp{};
+    glfwGetCursorPos(window, &mouseXTemp, &mouseYTemp);
+
+    const auto mouseX = static_cast<float>(mouseXTemp);
+    const auto mouseY = static_cast<float>(mouseYTemp);
 
     if (firstClick_)
     {
@@ -50,32 +54,26 @@ void Camera::processInput(float delta, GLFWwindow* window)
       firstClick_ = false;
     }
 
-    double xoffset = mouseX - lastMouseX_;
-    double yoffset =
+    auto xoffset = mouseX - lastMouseX_;
+    auto yoffset =
         lastMouseY_ -
         mouseY;  // reversed since y-coordinates range from bottom to top
     lastMouseX_ = mouseX;
     lastMouseY_ = mouseY;
 
-    xoffset *= sensitivity;
-    yoffset *= sensitivity;
+    xoffset *= deltaSensitivity;
+    yoffset *= deltaSensitivity;
 
-    yaw_ = glm::mod(yaw_ + xoffset, 360.0);
+    yaw_ = glm::mod(yaw_ + xoffset, 360.0f);
     pitch_ += yoffset;
 
-    if (pitch_ > 89.0f)
-    {
-      pitch_ = 89.0f;
-    }
-    if (pitch_ < -89.0f)
-    {
-      pitch_ = -89.0f;
-    }
+    constexpr auto pitchBound = 89.0f;
+    std::clamp(pitch_, -pitchBound, pitchBound);
 
     const glm::vec3 direction{
-      static_cast<float>(cos(glm::radians(yaw_)) * cos(glm::radians(pitch_))),
-      static_cast<float>(sin(glm::radians(pitch_))),
-      static_cast<float>(sin(glm::radians(yaw_)) * cos(glm::radians(pitch_)))
+      std::cos(glm::radians(yaw_)) * std::cos(glm::radians(pitch_)),
+      std::sin(glm::radians(pitch_)),
+      std::sin(glm::radians(yaw_)) * std::cos(glm::radians(pitch_))
     };
     orientation_ = glm::normalize(direction);
   }
