@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <simple_3d_viewer/ImGuiWrapper.hpp>
 #include <simple_3d_viewer/Viewer.hpp>
 
@@ -13,12 +14,11 @@ class Mediator : public ImGuiWrapper::Mediator, public Viewer::Mediator
   using ViewerEvent = Viewer::Event;
   using ViewerError = Viewer::Error;
 
-  Mediator(ImGuiWrapper& imGuiWrapper, Viewer& viewer)
-      : viewer_(viewer),
-        imGuiWrapper_(imGuiWrapper)
+  static void setupCommunication(ImGuiWrapper& imGuiWrapper, Viewer& viewer)
   {
-    imGuiWrapper_.setMediator(this);
-    viewer_.setMediator(this);
+    auto mediator = std::make_shared<Mediator>(Mediator(imGuiWrapper, viewer));
+    imGuiWrapper.setMediator(mediator);
+    viewer.setMediator(std::move(mediator));
   }
 
   void notify(GUIEvent e) override;
@@ -26,6 +26,12 @@ class Mediator : public ImGuiWrapper::Mediator, public Viewer::Mediator
   void notify(ViewerError e, const std::string& errorMessage) override;
 
  private:
+  Mediator(ImGuiWrapper& imGuiWrapper, Viewer& viewer)
+      : viewer_(viewer),
+        imGuiWrapper_(imGuiWrapper)
+  {
+  }
+
   Viewer& viewer_;
   ImGuiWrapper& imGuiWrapper_;
 };

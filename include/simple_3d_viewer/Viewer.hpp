@@ -12,6 +12,7 @@
 
 namespace Simple3D
 {
+
 class Viewer
 {
  public:
@@ -19,11 +20,13 @@ class Viewer
   {
     ModelLoaded
   };
+
   enum class Error
   {
     ReloadProgram,
     LoadModel
   };
+
   class Mediator
   {
    public:
@@ -41,13 +44,21 @@ class Viewer
 
   void processInput(float delta)
   {
+    if (mediator_ == nullptr)
+    {
+      throw std::logic_error("Mediator should be setup by now");
+    }
+
     scene_.camera.processInput(delta, window_);
   }
+
   void render(Size framebufferSize);
+
   void setPostprocessActiveFlag(const std::string& ID, bool active)
   {
     renderer_.postprocessPipeline_.setPostprocessActiveFlag(ID, active);
   }
+
   void loadModel(const std::filesystem::path& pathToModel)
   {
     if (scene_.model)
@@ -59,6 +70,7 @@ class Viewer
         [pathToModel, modelConfig = modelConfig_]()
         { return Model(pathToModel, modelConfig); });
   }
+
   void setModelTransform(const Transform& transform)
   {
     if (scene_.model)
@@ -66,20 +78,23 @@ class Viewer
       scene_.model->setTransform(transform);
     }
   }
+
   void setCameraSettings(Camera::Settings settings)
   {
     scene_.camera.setSettings(settings);
   }
+
   void reloadProgram();
-  void setMediator(Mediator* mediator)
+
+  void setMediator(std::shared_ptr<Mediator> mediator)
   {
-    mediator_ = mediator;
+    mediator_ = std::move(mediator);
   }
 
  private:
   GLFWwindow* window_;
   std::future<Model> modelFuture_;
-  Mediator* mediator_{ nullptr };
+  std::shared_ptr<Mediator> mediator_;
 
   void init();
   void isModelLoaded();

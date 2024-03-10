@@ -265,6 +265,11 @@ ImGuiWrapper::ImGuiWrapper(
 
 void ImGuiWrapper::update()
 {
+  if (mediator_ == nullptr)
+  {
+    throw std::logic_error("Mediator should be setup by now");
+  }
+
   static std::once_flag sync_flag;
   std::call_once(sync_flag, sync, *mediator_);
 

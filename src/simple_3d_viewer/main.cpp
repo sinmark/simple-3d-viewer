@@ -48,7 +48,7 @@ int main()
                                                       "grayscale" };
   Simple3D::ImGuiWrapper imGuiWrapper(window, supportedPostprocesses);
   Simple3D::Viewer viewer(window, supportedPostprocesses);
-  Simple3D::Mediator mediator(imGuiWrapper, viewer);
+  Simple3D::Mediator::setupCommunication(imGuiWrapper, viewer);
 
   double previousTime = 0;
   double currentTime = glfwGetTime();

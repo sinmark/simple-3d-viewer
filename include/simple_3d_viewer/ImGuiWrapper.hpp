@@ -7,6 +7,7 @@
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -71,9 +72,9 @@ class ImGuiWrapper
 
   void update();
 
-  void setMediator(Mediator* mediator)
+  void setMediator(std::shared_ptr<Mediator> mediator)
   {
-    mediator_ = mediator;
+    mediator_ = std::move(mediator);
   }
 
   [[nodiscard]] const std::filesystem::path& getModelFilePath() const
@@ -119,7 +120,7 @@ class ImGuiWrapper
   }
 
  private:
-  Mediator* mediator_{ nullptr };
+  std::shared_ptr<Mediator> mediator_;
   Checkboxes postprocessesCheckboxes_;
   Sliders lightControlsSliders_;
   Checkboxes lightControlsCheckboxes_;

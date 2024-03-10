@@ -30,6 +30,11 @@ void Viewer::init()
 
 void Viewer::render(const Size framebufferSize)
 {
+  if (mediator_ == nullptr)
+  {
+    throw std::logic_error("Mediator should be setup by now");
+  }
+
   isModelLoaded();
 
   if (framebufferSize.width <= 0 || framebufferSize.height <= 0)
