@@ -26,7 +26,7 @@ class Program
   void doOperations(const std::function<void(Program&)>& operations);
   void release();
 
-  [[nodiscard]] uint64_t getID() const
+  [[nodiscard]] uint64_t getId() const
   {
     return id_;
   }

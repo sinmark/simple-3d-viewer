@@ -25,7 +25,7 @@ void Renderer::performCacheChecks(Scene& scene, const Size framebufferSize)
   const auto projection = calculateProjectionTransform(framebufferSize);
   const auto view = scene.camera.getViewTransform();
   modelProgramUniformsCache.modelProgramID.update(
-      scene.modelProgram.getID(),
+      scene.modelProgram.getId(),
       [&modelProgramUniformsCache]() { modelProgramUniformsCache.clear(); });
   cache_.framebufferSize.update(
       framebufferSize,
@@ -134,7 +134,7 @@ void Renderer::render(Mesh& mesh, Program& program)
   }
 
   cache_.modelProgramUniformsCache.materialID.update(
-      mesh.material_->getID(),
+      mesh.material_->getId(),
       [&mesh, &program]() { mesh.material_->use(program); });
   program.doOperations([&mesh](Program& program) { drawPrimitives(mesh); });
 }

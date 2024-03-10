@@ -44,7 +44,8 @@ class Material
   float shininessStrength{ 1.f };
 
   void use(Program& program);
-  uint64_t getID() const
+
+  [[nodiscard]] uint64_t getId() const
   {
     return id_;
   }
