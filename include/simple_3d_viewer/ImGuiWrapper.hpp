@@ -47,6 +47,8 @@ class ImGuiWrapper
     ReloadProgram,
   };
 
+  // We will notify the outside world about different events through an object
+  // of this class
   class Mediator
   {
    public:
@@ -63,18 +65,12 @@ class ImGuiWrapper
     release();
   }
 
+  void release();
+
+  void render();
+
   void update();
-  void render()
-  {
-    ImGui::Render();
-    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-  }
-  void release()
-  {
-    ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
-    ImGui::DestroyContext();
-  }
+
   void setMediator(Mediator* mediator)
   {
     mediator_ = mediator;
@@ -125,10 +121,10 @@ class ImGuiWrapper
  private:
   Mediator* mediator_{ nullptr };
   Checkboxes postprocessesCheckboxes_;
-  Checkboxes lightControlsCheckboxes_;
-  Checkboxes modelLoadingConfigurationCheckboxes_;
   Sliders lightControlsSliders_;
+  Checkboxes lightControlsCheckboxes_;
   Sliders modelTransformSliders_;
+  Checkboxes modelLoadingConfigurationCheckboxes_;
   Sliders cameraControlsSliders_;
   std::filesystem::path modelFilePath_;
   std::string cachedErrorMessage_;

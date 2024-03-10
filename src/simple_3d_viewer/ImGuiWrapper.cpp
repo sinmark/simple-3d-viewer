@@ -7,6 +7,7 @@
 #include <mutex>
 #include <optional>
 #include <simple_3d_viewer/ImGuiWrapper.hpp>
+#include <stdexcept>
 
 namespace Simple3D
 {
@@ -230,9 +231,22 @@ void drawCameraArea(
 ImGuiWrapper::ImGuiWrapper(
     GLFWwindow* window,
     const std::vector<std::string>& postprocesses)
-    : lightControlsSliders_{ { "Position X##1", 0.f, 0.f, -100.f, 100.f },
+    : postprocessesCheckboxes_(
+          [&postprocesses]()
+          {
+            std::vector<Checkbox> postprocessesCheckboxes;
+            std::ranges::transform(
+                postprocesses,
+                std::back_inserter(postprocessesCheckboxes),
+                [](const std::string& postprocess) {
+                  return Checkbox{ postprocess, false };
+                });
+            return postprocessesCheckboxes;
+          }()),
+      lightControlsSliders_{ { "Position X##1", 0.f, 0.f, -100.f, 100.f },
                              { "Position Y##1", 0.f, 0.f, -100.f, 100.f },
                              { "Position Z##1", 0.f, 0.f, -100.f, 100.f } },
+      lightControlsCheckboxes_{ { "Visualize light position", true } },
       modelTransformSliders_{ { "Position X", 0.f, 0.f, -100.f, 100.f },
                               { "Position Y", 0.f, 0.f, -100.f, 100.f },
                               { "Position Z", 0.f, 0.f, -100.f, 100.f },
@@ -242,30 +256,15 @@ ImGuiWrapper::ImGuiWrapper(
                               { "Scale X", 1.f, 1.f, 0.f, 100.f },
                               { "Scale Y", 1.f, 1.f, 0.f, 100.f },
                               { "Scale Z", 1.f, 1.f, 0.f, 100.f } },
+      modelLoadingConfigurationCheckboxes_{ { "Flip UVs", false } },
       cameraControlsSliders_{ { "Speed", 2.f, 2.f, 0.1f, 100.f },
-                              { "Sensitivity", 5.0f, 5.0f, 0.1f, 20.f } },
-      postprocessesCheckboxes_(
-          [&postprocesses]()
-          {
-            std::vector<Checkbox> postprocessesCheckboxes;
-            std::transform(
-                postprocesses.begin(),
-                postprocesses.end(),
-                std::back_inserter(postprocessesCheckboxes),
-                [](const std::string& postprocess) {
-                  return Checkbox{ postprocess, false };
-                });
-            return postprocessesCheckboxes;
-          }()),
-      lightControlsCheckboxes_{ { "Visualize light position", true } },
-      modelLoadingConfigurationCheckboxes_{ { "Flip UVs", false } }
+                              { "Sensitivity", 5.0f, 5.0f, 0.1f, 20.f } }
 {
   init(window);
 }
 
 void ImGuiWrapper::update()
 {
-  assert(mediator_);
   static std::once_flag sync_flag;
   std::call_once(sync_flag, sync, *mediator_);
 
@@ -295,6 +294,19 @@ void ImGuiWrapper::drawSettingsWindow()
     mediator.notify(Event::LoadModel);
   }
   drawCameraArea(cameraControlsSliders_, mediator);
+}
+
+void ImGuiWrapper::render()
+{
+  ImGui::Render();
+  ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
+void ImGuiWrapper::release()
+{
+  ImGui_ImplOpenGL3_Shutdown();
+  ImGui_ImplGlfw_Shutdown();
+  ImGui::DestroyContext();
 }
 
 }  // namespace Simple3D

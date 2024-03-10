@@ -11,15 +11,19 @@
 int main()
 {
   // GLFW init stuff
-  if (!glfwInit())
+  if (glfwInit() == 0)
+  {
     return -1;
+  }
+
+  // OpenGL version
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
   const int initialScreenWidth = 800;
   const int initialScreenHeight = 600;
-  GLFWwindow* window = nullptr;
-  window = glfwCreateWindow(
+  GLFWwindow* window = glfwCreateWindow(
       initialScreenWidth,
       initialScreenHeight,
       "Simple 3D Viewer",
@@ -30,8 +34,9 @@ int main()
     glfwTerminate();
     return -1;
   }
+
   glfwMakeContextCurrent(window);
-  if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress)))
+  if (gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress)) == 0)
   {
     glfwTerminate();
     return -1;
@@ -47,11 +52,11 @@ int main()
 
   double previousTime = 0;
   double currentTime = glfwGetTime();
-  while (!glfwWindowShouldClose(window))
+  while (glfwWindowShouldClose(window) == 0)
   {
     previousTime = currentTime;
     currentTime = glfwGetTime();
-    const double delta = currentTime - previousTime;
+    const auto delta = currentTime - previousTime;
 
     imGuiWrapper.update();
     viewer.processInput(static_cast<float>(delta));
