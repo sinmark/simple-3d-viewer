@@ -3,6 +3,7 @@
 #include <glad/glad.h>
 
 #include <algorithm>
+#include <filesystem>
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
@@ -79,9 +80,9 @@ class ImGuiWrapper
     mediator_ = mediator;
   }
 
-  [[nodiscard]] const std::string& getSelectedFilePath() const
+  [[nodiscard]] const std::filesystem::path& getModelFilePath() const
   {
-    return filePath_;
+    return modelFilePath_;
   }
 
   [[nodiscard]] const std::vector<Checkbox>& getPostprocessesCheckboxes() const
@@ -123,19 +124,15 @@ class ImGuiWrapper
 
  private:
   Mediator* mediator_{ nullptr };
-  std::string filePath_;
   Checkboxes postprocessesCheckboxes_;
   Checkboxes lightControlsCheckboxes_;
   Checkboxes modelLoadingConfigurationCheckboxes_;
   Sliders lightControlsSliders_;
   Sliders modelTransformSliders_;
   Sliders cameraControlsSliders_;
+  std::filesystem::path modelFilePath_;
   std::string cachedErrorMessage_;
 
   void drawSettingsWindow();
-  void drawLightingArea();
-  void drawModelArea();
-  void drawCameraArea();
-  void loadModelDialog();
 };
 }  // namespace Simple3D

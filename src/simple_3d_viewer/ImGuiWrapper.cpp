@@ -1,8 +1,11 @@
 #include <glad/glad.h>
 
+#include "simple_3d_viewer/Mediator.hpp"
 #include <ImGuiFileDialog.h>
+#include <filesystem>
 #include <iterator>
 #include <mutex>
+#include <optional>
 #include <simple_3d_viewer/ImGuiWrapper.hpp>
 
 namespace Simple3D
@@ -118,6 +121,110 @@ void drawPostprocessesArea(
   ImGui::Separator();
 }
 
+void drawLightingArea(
+    Sliders& lightControlsSliders,
+    Checkboxes& lightControlsCheckboxes,
+    ImGuiWrapper::Mediator& mediator)
+{
+  ImGui::Text("Light controls:");
+  if (drawSliders(lightControlsSliders))
+  {
+    mediator.notify(ImGuiWrapper::Event::LightingControlsChange);
+  }
+  if (ImGui::Button("Reset light position"))
+  {
+    resetSliders(lightControlsSliders);
+    mediator.notify(ImGuiWrapper::Event::LightingControlsChange);
+  }
+
+  ImGui::Spacing();
+  if (drawCheckboxes(lightControlsCheckboxes))
+  {
+    mediator.notify(ImGuiWrapper::Event::VisualizeLightPositionCheckboxChange);
+  }
+  ImGui::Separator();
+}
+
+std::optional<std::filesystem::path> loadModelDialog()
+{
+  if (ImGui::Button("Load model"))
+  {
+    ImGuiFileDialog::Instance()->OpenDialog(
+        "ChooseFileDlgKey",
+        "Choose a 3D model file",
+        ".obj,.gltf,.fbx,.dxf",
+        ".");
+  }
+
+  const int width = 400;
+  const int height = 360;
+  const ImVec2 size(width, height);
+  std::optional<std::filesystem::path> result;
+  if (ImGuiFileDialog::Instance()->Display(
+          "ChooseFileDlgKey", ImGuiWindowFlags_NoCollapse, size, size))
+  {
+    if (ImGuiFileDialog::Instance()->IsOk())
+    {
+      result = ImGuiFileDialog::Instance()->GetFilePathName();
+    }
+
+    ImGuiFileDialog::Instance()->Close();
+  }
+
+  return result;
+}
+
+std::optional<std::filesystem::path> drawModelArea(
+    Sliders& modelTransformSliders,
+    Checkboxes& modelLoadingConfigurationCheckboxes,
+    ImGuiWrapper::Mediator& mediator)
+{
+  ImGui::Text("Model controls:");
+  if (drawSliders(modelTransformSliders))
+  {
+    mediator.notify(ImGuiWrapper::Event::ModelControlsChange);
+  }
+  if (ImGui::Button("Reset model transform"))
+  {
+    resetSliders(modelTransformSliders);
+    mediator.notify(ImGuiWrapper::Event::ModelControlsChange);
+  }
+
+  ImGui::Spacing();
+  ImGui::Text("Model loading configuration:");
+  if (drawCheckboxes(modelLoadingConfigurationCheckboxes))
+  {
+    mediator.notify(ImGuiWrapper::Event::ModelLoadingConfigurationChange);
+  }
+
+  auto result = loadModelDialog();
+  ImGui::SameLine();
+  if (ImGui::Button("Reload model shaders"))
+  {
+    mediator.notify(ImGuiWrapper::Event::ReloadProgram);
+  }
+  ImGui::Separator();
+
+  return result;
+}
+
+void drawCameraArea(
+    Sliders& cameraControlsSliders,
+    ImGuiWrapper::Mediator& mediator)
+{
+  ImGui::Text("Camera controls:");
+  if (drawSliders(cameraControlsSliders))
+  {
+    mediator.notify(ImGuiWrapper::Event::CameraControlsChange);
+  }
+
+  if (ImGui::Button("Reset camera controls"))
+  {
+    resetSliders(cameraControlsSliders);
+    mediator.notify(ImGuiWrapper::Event::CameraControlsChange);
+  }
+}
+
 }  // namespace
 
 ImGuiWrapper::ImGuiWrapper(
@@ -174,96 +281,20 @@ void ImGuiWrapper::update()
 void ImGuiWrapper::drawSettingsWindow()
 {
   ImGui::Begin("Settings", nullptr);
+  auto& mediator = *mediator_;
   drawMainArea();
-  drawPostprocessesArea(postprocessesCheckboxes_, *mediator_);
-  drawLightingArea();
-  drawModelArea();
-  drawCameraArea();
+  drawPostprocessesArea(postprocessesCheckboxes_, mediator);
+  drawLightingArea(lightControlsSliders_, lightControlsCheckboxes_, mediator);
+  if (auto maybeModelFilePath = drawModelArea(
+          modelTransformSliders_,
+          modelLoadingConfigurationCheckboxes_,
+          mediator);
+      maybeModelFilePath.has_value())
+  {
+    modelFilePath_ = *maybeModelFilePath;
+    mediator.notify(Event::LoadModel);
+  }
+  drawCameraArea(cameraControlsSliders_, mediator);
 }
 
-void ImGuiWrapper::drawLightingArea()
-{
-  ImGui::Text("Light controls:");
-  if (drawSliders(lightControlsSliders_))
-  {
-    mediator_->notify(Event::LightingControlsChange);
-  }
-  if (ImGui::Button("Reset light position"))
-  {
-    resetSliders(lightControlsSliders_);
-    mediator_->notify(Event::LightingControlsChange);
-  }
-
-  ImGui::Spacing();
-  if (drawCheckbox(lightControlsCheckboxes_[0]))
-  {
-    mediator_->notify(Event::VisualizeLightPositionCheckboxChange);
-  }
-  ImGui::Separator();
-}
-
-void ImGuiWrapper::drawModelArea()
-{
-  ImGui::Text("Model controls:");
-  if (drawSliders(modelTransformSliders_))
-  {
-    mediator_->notify(Event::ModelControlsChange);
-  }
-  if (ImGui::Button("Reset model transform"))
-  {
-    resetSliders(modelTransformSliders_);
-    mediator_->notify(Event::ModelControlsChange);
-  }
-
-  ImGui::Spacing();
-  ImGui::Text("Model loading configuration:");
-  if (drawCheckboxes(modelLoadingConfigurationCheckboxes_))
-  {
-    mediator_->notify(Event::ModelLoadingConfigurationChange);
-  }
-
-  loadModelDialog();
-  ImGui::SameLine();
-  if (ImGui::Button("Reload model shaders"))
-  {
-    mediator_->notify(Event::ReloadProgram);
-  }
-  ImGui::Separator();
-}
-
-void ImGuiWrapper::drawCameraArea()
-{
-  ImGui::Text("Camera controls:");
-  if (drawSliders(cameraControlsSliders_))
-    mediator_->notify(Event::CameraControlsChange);
-  if (ImGui::Button("Reset camera controls"))
-  {
-    resetSliders(cameraControlsSliders_);
-    mediator_->notify(Event::CameraControlsChange);
-  }
-}
-
-void ImGuiWrapper::loadModelDialog()
-{
-  if (ImGui::Button("Load model"))
-    ImGuiFileDialog::Instance()->OpenDialog(
-        "ChooseFileDlgKey",
-        "Choose a 3D model file",
-        ".obj,.gltf,.fbx,.dxf",
-        ".");
-
-  const int width = 400, height = 360;
-  const ImVec2 size(width, height);
-  if (ImGuiFileDialog::Instance()->Display(
-          "ChooseFileDlgKey", ImGuiWindowFlags_NoCollapse, size, size))
-  {
-    if (ImGuiFileDialog::Instance()->IsOk())
-    {
-      filePath_ = ImGuiFileDialog::Instance()->GetFilePathName();
-      mediator_->notify(Event::LoadModel);
-    }
-
-    ImGuiFileDialog::Instance()->Close();
-  }
-}
 }  // namespace Simple3D

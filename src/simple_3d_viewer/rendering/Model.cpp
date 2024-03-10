@@ -14,11 +14,11 @@ const std::unordered_map<Model::Configuration::Flag, aiPostProcessSteps>
       { Configuration::Flag::FlipUVs, aiPostProcessSteps::aiProcess_FlipUVs }
     };
 
-void Model::loadModel(const std::string& path)
+void Model::loadModel(const std::filesystem::path& modelFilePath)
 {
   Assimp::Importer importer;
   const aiScene* scene = importer.ReadFile(
-      path,
+      modelFilePath,
       aiProcess_Triangulate | aiProcess_GenSmoothNormals |
           aiProcess_CalcTangentSpace | aiProcess_PreTransformVertices |
           configuration_.getEquivalentAssimpFlags());
@@ -28,10 +28,12 @@ void Model::loadModel(const std::string& path)
         "Assimp error: " + std::string(importer.GetErrorString());
     throw std::invalid_argument(errorMessage);
   }
-  modelDirectory_ = path.substr(0, path.find_last_of('/'));
+  modelDirectory_ = modelFilePath.parent_path();
 
   if (scene->HasMaterials())
+  {
     processMaterials(scene);
+  }
   processNode(scene->mRootNode, scene);
 }
 

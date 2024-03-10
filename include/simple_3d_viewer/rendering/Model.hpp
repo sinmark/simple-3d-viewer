@@ -6,6 +6,7 @@
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 #include <bitset>
+#include <filesystem>
 #include <glm/glm.hpp>
 #include <simple_3d_viewer/linear_algebra/Transform.hpp>
 #include <simple_3d_viewer/opengl_object_wrappers/Texture.hpp>
@@ -51,11 +52,13 @@ class Model
     static const std::unordered_map<Flag, aiPostProcessSteps> flagToAssimpFlag_;
   };
 
-  Model(const std::string& pathToFile, const Configuration& configuration)
-      : id_(idGenerator_++),
-        configuration_(configuration)
+  Model(
+      const std::filesystem::path& modelFilePath,
+      const Configuration& configuration)
+      : configuration_(configuration),
+        id_(idGenerator_++)
   {
-    loadModel(pathToFile);
+    loadModel(modelFilePath);
   }
 
   glm::mat4x4 transform_{ calculateModelTransform(
@@ -87,7 +90,7 @@ class Model
 
   static uint64_t idGenerator_;
 
-  void loadModel(const std::string& path);
+  void loadModel(const std::filesystem::path& modelFilePath);
   void processMaterials(const aiScene* scene);
   void processNode(aiNode* node, const aiScene* scene);
   void loadMaterialTextures(aiMaterial* assimpMaterial);

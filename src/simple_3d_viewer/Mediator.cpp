@@ -106,8 +106,7 @@ void handleCameraControlsChange(
 
 void handleLoadModel(const ImGuiWrapper& imGuiWrapper, Viewer& viewer)
 {
-  const std::filesystem::path path(imGuiWrapper.getSelectedFilePath());
-  viewer.loadModel(path);
+  viewer.loadModel(imGuiWrapper.getModelFilePath());
 }
 
 void handleReloadProgram(
