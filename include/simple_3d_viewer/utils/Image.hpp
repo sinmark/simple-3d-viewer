@@ -18,7 +18,7 @@ struct Image
 
   void release();
 
-  friend void swap(Image& lhs, Image& rhs)
+  friend void swap(Image& lhs, Image& rhs) noexcept
   {
     using std::swap;
 

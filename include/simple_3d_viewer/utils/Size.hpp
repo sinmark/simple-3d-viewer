@@ -8,10 +8,7 @@ struct Size
   int width;
   int height;
 
-  friend bool operator==(Size lhs, Size rhs)
-  {
-    return lhs.width == rhs.width && lhs.height == rhs.height;
-  }
+  friend bool operator==(Size lhs, Size rhs) = default;
 };
 
 }  // namespace Simple3D
