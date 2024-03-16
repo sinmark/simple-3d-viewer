@@ -1,5 +1,6 @@
 #pragma once
 
+#include "simple_3d_viewer/utils/StringHeterogeneousLookup.hpp"
 #include "simple_3d_viewer/utils/simpleIdGenerator.hpp"
 #include <functional>
 #include <glm/mat4x4.hpp>
@@ -47,7 +48,8 @@ class Program
  private:
   uint programHandle_ = 0;
   uint64_t id_ = generateSimpleId();
-  mutable std::unordered_map<std::string, int> uniformLocationCache_;
+
+  mutable StringHeterogeneousLookupUnorderedMap<int> uniformLocationCache_;
 };
 
 }  // namespace Simple3D

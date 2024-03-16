@@ -73,11 +73,6 @@ bool drawCheckboxes(Checkboxes& checkboxes)
   return changed;
 }
 
-bool drawCheckbox(Checkbox& checkbox)
-{
-  return ImGui::Checkbox(checkbox.text.c_str(), &checkbox.value);
-}
-
 bool drawSliders(Sliders& sliders)
 {
   bool changed = false;

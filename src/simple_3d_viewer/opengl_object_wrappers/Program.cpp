@@ -1,5 +1,6 @@
 ﻿#include <glad/glad.h>
 
+#include "simple_3d_viewer/utils/StringHeterogeneousLookup.hpp"
 #include <filesystem>
 #include <fmt/core.h>
 #include <iostream>
@@ -178,7 +179,7 @@ namespace
 GLint getUniformLocation(
     const std::string& name,
     GLuint programHandle,
-    std::unordered_map<std::string, GLint>& uniformLocationCache)
+    StringHeterogeneousLookupUnorderedMap<int>& uniformLocationCache)
 {
   if (uniformLocationCache.contains(name))
   {
@@ -191,7 +192,7 @@ GLint getUniformLocation(
     printInvalidUniform(name);
   }
 
-  uniformLocationCache.emplace(name, location);
+  uniformLocationCache.try_emplace(name, location);
   return location;
 }
 
@@ -305,11 +306,11 @@ bool Program::hasUniform(const std::string& name) const
 {
   if (uniformLocationCache_.contains(name))
   {
-    return uniformLocationCache_.at(name) != kInvalidLocation;
+    return uniformLocationCache_[name] != kInvalidLocation;
   }
 
   const GLint location = glGetUniformLocation(programHandle_, name.c_str());
-  uniformLocationCache_.emplace(name, location);
+  uniformLocationCache_.try_emplace(name, location);
   return location != kInvalidLocation;
 }
 

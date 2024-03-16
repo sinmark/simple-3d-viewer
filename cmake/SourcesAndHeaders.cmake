@@ -45,4 +45,5 @@ set(headers
   include/simple_3d_viewer/utils/Size.hpp
   include/simple_3d_viewer/utils/Image.hpp
   include/simple_3d_viewer/utils/simpleIdGenerator.hpp
+  include/simple_3d_viewer/utils/StringHeterogeneousLookup.hpp
 )

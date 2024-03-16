@@ -93,7 +93,9 @@ void Renderer::performCacheChecks(Scene& scene, const Size framebufferSize)
 void Renderer::render(Model& model, Program& program)
 {
   for (auto& mesh : model.meshes_)
+  {
     render(mesh, program);
+  }
 }
 
 void Renderer::renderSkybox(
@@ -107,35 +109,45 @@ void Renderer::renderSkybox(
   glDepthFunc(GL_LESS);
 }
 
-static inline void drawPrimitives(Mesh& mesh)
+namespace
 {
-  assert(mesh.vao_);
+
+void drawPrimitives(const Mesh& mesh)
+{
   glBindVertexArray(mesh.vao_);
 
   if (!mesh.indices_.empty())
+  {
     glDrawElements(
         GL_TRIANGLES,
         static_cast<GLsizei>(mesh.indices_.size()),
         GL_UNSIGNED_INT,
         nullptr);
+  }
   else
+  {
     glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(mesh.vertices_.size()));
+  }
 
   glBindVertexArray(0);
 }
 
+}  // namespace
+
 void Renderer::render(Mesh& mesh, Program& program)
 {
-  assert(mesh.vao_);
-  if (!mesh.material_)
+  if (mesh.material_ == nullptr)
   {
-    program.doOperations([&mesh](Program& program) { drawPrimitives(mesh); });
+    program.doOperations([&mesh](const Program& /*program*/)
+                         { drawPrimitives(mesh); });
     return;
   }
 
   cache_.modelProgramUniformsCache.materialID.update(
       mesh.material_->getId(),
       [&mesh, &program]() { mesh.material_->use(program); });
-  program.doOperations([&mesh](Program& program) { drawPrimitives(mesh); });
+  program.doOperations([&mesh](const Program& /*program*/)
+                       { drawPrimitives(mesh); });
 }
+
 }  // namespace Simple3D
