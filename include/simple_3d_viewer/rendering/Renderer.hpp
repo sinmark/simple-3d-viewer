@@ -35,9 +35,10 @@ class Renderer
     T value;
     bool changed;
 
+    template<typename OperationsBeforeUpdate>
     void update(
         const T& newValue,
-        const std::function<void()>& operationsBeforeUpdate)
+        const OperationsBeforeUpdate& operationsBeforeUpdate)
     {
       if (changed = value != newValue; !changed)
       {
@@ -80,7 +81,8 @@ class Renderer
         cameraPosition.value = { floatMaxValue, floatMaxValue, floatMaxValue };
         lightPosition.value = { floatMaxValue, floatMaxValue, floatMaxValue };
       }
-    } modelProgramUniformsCache;
+    };
+    ModelProgramUniformsCache modelProgramUniformsCache;
     CachePair<Size> framebufferSize{};
   };
   Cache cache_;

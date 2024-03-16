@@ -3,19 +3,26 @@
 
 namespace Simple3D
 {
+
 void Renderer::render(Scene& scene, const Size framebufferSize)
 {
   performCacheChecks(scene, framebufferSize);
   postprocessPipeline_.start();
+
   glEnable(GL_DEPTH_TEST);
   static constexpr auto clearColor = 0.01f;
   glClearColor(clearColor, clearColor, clearColor, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   if (scene.model)
+  {
     render(scene.model.value(), scene.modelProgram);
+  }
   if (drawLight_)
+  {
     render(scene.light, scene.lightProgram);
+  }
   renderSkybox(scene.skybox, scene.skyboxProgram, scene.skyboxTexture);
+
   postprocessPipeline_.finalize();
 }
 
@@ -81,9 +88,9 @@ void Renderer::performCacheChecks(Scene& scene, const Size framebufferSize)
   {
     modelProgramUniformsCache.modelTransform.update(
         scene.model->transform_,
-        [&program = scene.modelProgram, &model = scene.model.value()]()
+        [&modelProgram = scene.modelProgram, &model = scene.model.value()]()
         {
-          program.doOperations(
+          modelProgram.doOperations(
               [&modelTransform = model.transform_](Program& program)
               { program.setMat4f("model", modelTransform); });
         });
