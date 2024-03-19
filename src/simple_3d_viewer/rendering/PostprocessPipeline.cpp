@@ -1,13 +1,17 @@
 #include <glad/glad.h>
 
+#include "simple_3d_viewer/utils/StringHeterogeneousLookup.hpp"
 #include <algorithm>
 #include <array>
 #include <cctype>
+#include <cstdio>
+#include <fmt/core.h>
 #include <iostream>
 #include <range/v3/algorithm/remove.hpp>
 #include <simple_3d_viewer/rendering/PostprocessPipeline.hpp>
 #include <simple_3d_viewer/utils/factories.hpp>
 #include <unordered_map>
+#include <utility>
 
 namespace Simple3D
 {
@@ -17,10 +21,10 @@ namespace
 
 constexpr GLuint kScreenTextureSlot = 4;
 
-std::unordered_map<PostprocessID, Postprocess> createIDToPostprocessMap(
+StringHeterogeneousLookupUnorderedMap<Postprocess> createIDToPostprocessMap(
     const std::vector<PostprocessID>& postprocessIDs)
 {
-  std::unordered_map<PostprocessID, Postprocess> idToPostprocess;
+  StringHeterogeneousLookupUnorderedMap<Postprocess> idToPostprocess;
   const std::string vertexShaderFilename = "postprocess";
   for (const auto& id : postprocessIDs)
   {
@@ -28,11 +32,9 @@ std::unordered_map<PostprocessID, Postprocess> createIDToPostprocessMap(
     std::ranges::transform(
         lowerCaseId,
         begin(lowerCaseId),
-        [](unsigned char c) -> char { return std::tolower(c); });
-    idToPostprocess.emplace(std::pair{
-        id,
-        Postprocess{ createProgram(vertexShaderFilename, lowerCaseId),
-                     false } });
+        [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+    idToPostprocess.try_emplace(
+        id, createProgram(vertexShaderFilename, lowerCaseId), false);
   }
 
   return idToPostprocess;
@@ -53,7 +55,7 @@ Framebuffers createFramebuffers(
       static_cast<GLsizei>(framebuffersCount),
       framebuffers.renderBuffers.data());
 
-  for (int i = 0; i < framebuffersCount; ++i)
+  for (auto i = decltype(framebuffersCount){}; i < framebuffersCount; ++i)
   {
     glBindFramebuffer(GL_FRAMEBUFFER, framebuffers.framebuffers[i]);
 
@@ -91,7 +93,7 @@ Framebuffers createFramebuffers(
 
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
     {
-      std::cout << "Framebuffer is not complete!" << '\n';
+      fmt::println(stderr, "Framebuffer is not complete");
     }
   }
 
@@ -104,16 +106,16 @@ Framebuffers createFramebuffers(
 
 void updatePostprocesses(
     const std::vector<PostprocessID>& postprocessesToUpdate,
-    std::unordered_map<PostprocessID, Postprocess>& idToPostprocess,
+    StringHeterogeneousLookupUnorderedMap<Postprocess>& idToPostprocess,
     const Size framebufferSize)
 {
   for (const auto& id : postprocessesToUpdate)
   {
     auto& program = idToPostprocess.at(id).program;
     program.doOperations(
-        [framebufferSize](Program& program)
+        [framebufferSize](Program& it)
         {
-          program.setVec3f(
+          it.setVec3f(
               "inverseScreenSize",
               { 1.0f / static_cast<float>(framebufferSize.width),
                 1.0f / static_cast<float>(framebufferSize.height),
@@ -123,7 +125,7 @@ void updatePostprocesses(
 }
 
 std::vector<PostprocessID> initPostprocesses(
-    std::unordered_map<PostprocessID, Postprocess>& idToPostprocess,
+    StringHeterogeneousLookupUnorderedMap<Postprocess>& idToPostprocess,
     const Size framebufferSize)
 {
   std::vector<PostprocessID> postprocessesToUpdate;
@@ -149,7 +151,7 @@ void resizeFramebuffersAttachments(
     const Size framebufferSize)
 {
   const auto size = framebuffers.colorBuffers.size();
-  for (int i = 0; i < size; ++i)
+  for (auto i = decltype(size){}; i < size; ++i)
   {
     glBindTexture(GL_TEXTURE_2D, framebuffers.colorBuffers[i]);
     glTexImage2D(
@@ -194,7 +196,7 @@ ScreenQuad createScreenQuad()
       GL_STATIC_DRAW);
 
   glEnableVertexAttribArray(0);
-  glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+  glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), nullptr);
   glEnableVertexAttribArray(1);
   glVertexAttribPointer(
       1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
@@ -238,8 +240,9 @@ void PostprocessPipeline::finalize()
   glDisable(GL_DEPTH_TEST);
   glActiveTexture(GL_TEXTURE0 + kScreenTextureSlot);
 
-  int colorBufferToUse = 0;
-  for (int i = 0; i < postprocessesOrder_.size() - 1; ++i)
+  size_t colorBufferToUse = 0;
+  const auto postprocessesCount = postprocessesOrder_.size();
+  for (auto i = decltype(postprocessesCount){}; i < postprocessesCount - 1; ++i)
   {
     glBindFramebuffer(GL_FRAMEBUFFER, framebuffers_.framebuffers[i + 1]);
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -248,7 +251,8 @@ void PostprocessPipeline::finalize()
     glBindTexture(GL_TEXTURE_2D, framebuffers_.colorBuffers[i]);
 
     auto& program = idToPostprocess_.at(postprocessesOrder_[i]).program;
-    program.doOperations([](Program&) { glDrawArrays(GL_TRIANGLES, 0, 6); });
+    program.doOperations([](Program& /*unused*/)
+                         { glDrawArrays(GL_TRIANGLES, 0, 6); });
 
     ++colorBufferToUse;
   }
@@ -260,7 +264,8 @@ void PostprocessPipeline::finalize()
   glBindTexture(GL_TEXTURE_2D, framebuffers_.colorBuffers[colorBufferToUse]);
 
   auto& program = idToPostprocess_.at(postprocessesOrder_.back()).program;
-  program.doOperations([](Program&) { glDrawArrays(GL_TRIANGLES, 0, 6); });
+  program.doOperations([](Program& /*unused*/)
+                       { glDrawArrays(GL_TRIANGLES, 0, 6); });
 
   glBindVertexArray(0);
   glBindTexture(GL_TEXTURE_2D, 0);
@@ -293,6 +298,8 @@ void releaseScreenQuad(ScreenQuad& screenQuad)
 {
   glDeleteBuffers(1, &screenQuad.vbo);
   glDeleteVertexArrays(1, &screenQuad.vao);
+  screenQuad.vbo = 0;
+  screenQuad.vao = 0;
 }
 
 }  // namespace

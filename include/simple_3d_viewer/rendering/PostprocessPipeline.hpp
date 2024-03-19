@@ -1,5 +1,6 @@
 #pragma once
 
+#include "simple_3d_viewer/utils/StringHeterogeneousLookup.hpp"
 #include <simple_3d_viewer/opengl_object_wrappers/Program.hpp>
 #include <simple_3d_viewer/utils/Size.hpp>
 #include <unordered_map>
@@ -10,6 +11,12 @@ namespace Simple3D
 
 struct Postprocess
 {
+  Postprocess(Program pProgram, bool pActive)
+      : program(std::move(pProgram)),
+        active(pActive)
+  {
+  }
+
   Program program;
   bool active;
 };
@@ -23,15 +30,15 @@ struct Framebuffers
   {
   }
 
-  std::vector<GLuint> framebuffers;
-  std::vector<GLuint> colorBuffers;
-  std::vector<GLuint> renderBuffers;
+  std::vector<uint> framebuffers;
+  std::vector<uint> colorBuffers;
+  std::vector<uint> renderBuffers;
 };
 
 struct ScreenQuad
 {
-  GLuint vbo;
-  GLuint vao;
+  uint vbo;
+  uint vao;
 };
 
 using PostprocessID = std::string;
@@ -73,7 +80,7 @@ class PostprocessPipeline
   void release();
 
  private:
-  std::unordered_map<PostprocessID, Postprocess> idToPostprocess_;
+  StringHeterogeneousLookupUnorderedMap<Postprocess> idToPostprocess_;
   std::vector<PostprocessID> postprocessesOrder_;
   std::vector<PostprocessID> postprocessesToUpdate_;
   Framebuffers framebuffers_;
