@@ -1,3 +1,5 @@
+#include <cstddef>
+#include <cstdint>
 #include <glm/vec3.hpp>
 #include <numbers>
 #include <simple_3d_viewer/linear_algebra/Vertex.hpp>
@@ -6,6 +8,7 @@
 
 namespace Simple3D
 {
+
 // https://gist.github.com/Pikachuxxxx/5c4c490a7d7679824e0e18af42918efc
 Mesh sphereMesh(float radius)
 {
@@ -13,20 +16,22 @@ Mesh sphereMesh(float radius)
   std::vector<uint32_t> indices;
   static constexpr auto pi = std::numbers::pi_v<float>;
 
-  static constexpr size_t latitudes = 30;
-  static constexpr size_t longitudes = 30;
+  static constexpr uint32_t latitudes = 30;
+  static constexpr uint32_t longitudes = 30;
   static_assert(latitudes >= 2 && longitudes >= 3);
 
-  vertices.reserve(latitudes * longitudes);
+  vertices.reserve(
+      static_cast<std::vector<Vertex>::size_type>(latitudes) * longitudes);
   indices.reserve((latitudes - 2) * longitudes * 6 + 2 * longitudes * 3);
   const auto lengthInv = 1.f / radius;
-  const auto deltaLatitude = static_cast<float>(pi / latitudes);
-  const auto deltaLongitude = static_cast<float>((2 * pi) / longitudes);
+  const auto deltaLatitude = pi / latitudes;
+  const auto deltaLongitude = (2 * pi) / longitudes;
 
-  for (size_t i = 0; i <= latitudes; ++i)
+  for (uint32_t i = 0; i <= latitudes; ++i)
   {
-    const auto latitudeAngle = static_cast<float>(
-        pi / 2 - i * deltaLatitude); /* Starting -pi/2 to pi/2 */
+    const auto latitudeAngle =
+        pi / 2 -
+        static_cast<float>(i) * deltaLatitude; /* Starting -pi/2 to pi/2 */
     const auto forXYComponent =
         radius * std::cos(latitudeAngle); /* r * cos(phi) */
     const auto forZComponent =
@@ -66,13 +71,13 @@ Mesh sphereMesh(float radius)
    *  | /  |
    *  k2--k2+1
    */
-  for (int i = 0; i < latitudes; ++i)
+  for (uint32_t i = 0; i < latitudes; ++i)
   {
     auto k1 = i * (longitudes + 1);
     auto k2 = k1 + longitudes + 1;
     // 2 Triangles per latitude block excluding the first and last longitudes
     // blocks
-    for (size_t j = 0; j < longitudes; ++j, ++k1, ++k2)
+    for (uint32_t j = 0; j < longitudes; ++j, ++k1, ++k2)
     {
       if (i != 0)
       {
@@ -96,25 +101,44 @@ Mesh sphereMesh(float radius)
 Mesh skyboxMesh()
 {
   std::vector<Vertex> squareVertices = {
-    { glm::vec3(-1.0f, 1.0f, -1.0f) },  { glm::vec3(-1.0f, -1.0f, -1.0f) },
-    { glm::vec3(1.0f, -1.0f, -1.0f) },  { glm::vec3(1.0f, -1.0f, -1.0f) },
-    { glm::vec3(1.0f, 1.0f, -1.0f) },   { glm::vec3(-1.0f, 1.0f, -1.0f) },
-    { glm::vec3(-1.0f, -1.0f, 1.0f) },  { glm::vec3(-1.0f, -1.0f, -1.0f) },
-    { glm::vec3(-1.0f, 1.0f, -1.0f) },  { glm::vec3(-1.0f, 1.0f, -1.0f) },
-    { glm::vec3(-1.0f, 1.0f, 1.0f) },   { glm::vec3(-1.0f, -1.0f, 1.0f) },
-    { glm::vec3(1.0f, -1.0f, -1.0f) },  { glm::vec3(1.0f, -1.0f, 1.0f) },
-    { glm::vec3(1.0f, 1.0f, 1.0f) },    { glm::vec3(1.0f, 1.0f, 1.0f) },
-    { glm::vec3(1.0f, 1.0f, -1.0f) },   { glm::vec3(1.0f, -1.0f, -1.0f) },
-    { glm::vec3(-1.0f, -1.0f, 1.0f) },  { glm::vec3(-1.0f, 1.0f, 1.0f) },
-    { glm::vec3(1.0f, 1.0f, 1.0f) },    { glm::vec3(1.0f, 1.0f, 1.0f) },
-    { glm::vec3(1.0f, -1.0f, 1.0f) },   { glm::vec3(-1.0f, -1.0f, 1.0f) },
-    { glm::vec3(-1.0f, 1.0f, -1.0f) },  { glm::vec3(1.0f, 1.0f, -1.0f) },
-    { glm::vec3(1.0f, 1.0f, 1.0f) },    { glm::vec3(1.0f, 1.0f, 1.0f) },
-    { glm::vec3(-1.0f, 1.0f, 1.0f) },   { glm::vec3(-1.0f, 1.0f, -1.0f) },
-    { glm::vec3(-1.0f, -1.0f, -1.0f) }, { glm::vec3(-1.0f, -1.0f, 1.0f) },
-    { glm::vec3(1.0f, -1.0f, -1.0f) },  { glm::vec3(1.0f, -1.0f, -1.0f) },
-    { glm::vec3(-1.0f, -1.0f, 1.0f) },  { glm::vec3(1.0f, -1.0f, 1.0f) }
+    { glm::vec3(-1.0f, 1.0f, -1.0f), {}, {}, {} },
+    { glm::vec3(-1.0f, -1.0f, -1.0f), {}, {}, {} },
+    { glm::vec3(1.0f, -1.0f, -1.0f), {}, {}, {} },
+    { glm::vec3(1.0f, -1.0f, -1.0f), {}, {}, {} },
+    { glm::vec3(1.0f, 1.0f, -1.0f), {}, {}, {} },
+    { glm::vec3(-1.0f, 1.0f, -1.0f), {}, {}, {} },
+    { glm::vec3(-1.0f, -1.0f, 1.0f), {}, {}, {} },
+    { glm::vec3(-1.0f, -1.0f, -1.0f), {}, {}, {} },
+    { glm::vec3(-1.0f, 1.0f, -1.0f), {}, {}, {} },
+    { glm::vec3(-1.0f, 1.0f, -1.0f), {}, {}, {} },
+    { glm::vec3(-1.0f, 1.0f, 1.0f), {}, {}, {} },
+    { glm::vec3(-1.0f, -1.0f, 1.0f), {}, {}, {} },
+    { glm::vec3(1.0f, -1.0f, -1.0f), {}, {}, {} },
+    { glm::vec3(1.0f, -1.0f, 1.0f), {}, {}, {} },
+    { glm::vec3(1.0f, 1.0f, 1.0f), {}, {}, {} },
+    { glm::vec3(1.0f, 1.0f, 1.0f), {}, {}, {} },
+    { glm::vec3(1.0f, 1.0f, -1.0f), {}, {}, {} },
+    { glm::vec3(1.0f, -1.0f, -1.0f), {}, {}, {} },
+    { glm::vec3(-1.0f, -1.0f, 1.0f), {}, {}, {} },
+    { glm::vec3(-1.0f, 1.0f, 1.0f), {}, {}, {} },
+    { glm::vec3(1.0f, 1.0f, 1.0f), {}, {}, {} },
+    { glm::vec3(1.0f, 1.0f, 1.0f), {}, {}, {} },
+    { glm::vec3(1.0f, -1.0f, 1.0f), {}, {}, {} },
+    { glm::vec3(-1.0f, -1.0f, 1.0f), {}, {}, {} },
+    { glm::vec3(-1.0f, 1.0f, -1.0f), {}, {}, {} },
+    { glm::vec3(1.0f, 1.0f, -1.0f), {}, {}, {} },
+    { glm::vec3(1.0f, 1.0f, 1.0f), {}, {}, {} },
+    { glm::vec3(1.0f, 1.0f, 1.0f), {}, {}, {} },
+    { glm::vec3(-1.0f, 1.0f, 1.0f), {}, {}, {} },
+    { glm::vec3(-1.0f, 1.0f, -1.0f), {}, {}, {} },
+    { glm::vec3(-1.0f, -1.0f, -1.0f), {}, {}, {} },
+    { glm::vec3(-1.0f, -1.0f, 1.0f), {}, {}, {} },
+    { glm::vec3(1.0f, -1.0f, -1.0f), {}, {}, {} },
+    { glm::vec3(1.0f, -1.0f, -1.0f), {}, {}, {} },
+    { glm::vec3(-1.0f, -1.0f, 1.0f), {}, {}, {} },
+    { glm::vec3(1.0f, -1.0f, 1.0f), {}, {}, {} }
   };
   return Mesh{ std::move(squareVertices) };
 }
+
 }  // namespace Simple3D

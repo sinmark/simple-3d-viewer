@@ -20,7 +20,7 @@ std::string loadFileIntoString(const std::filesystem::path& filePath)
 
   std::string file;
   in.seekg(0, std::ios::end);
-  file.resize(in.tellg());
+  file.resize(static_cast<size_t>(in.tellg()));
   in.seekg(0, std::ios::beg);
   in.read(file.data(), static_cast<long>(file.size()));
   in.close();
