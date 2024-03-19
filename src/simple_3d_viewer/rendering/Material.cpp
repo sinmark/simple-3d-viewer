@@ -1,27 +1,59 @@
+#include <cstdint>
+#include <fmt/format.h>
 #include <simple_3d_viewer/rendering/Material.hpp>
+#include <sys/types.h>
 
 namespace Simple3D
 {
 
-void Material::use(Program& program)
+namespace
 {
-  prepareTexturesForUse(program);
-  setUniforms(program);
+
+void setUniforms(Program& program, const Material& material)
+{
+  program.doOperations(
+      [&material](Program& it)
+      {
+        it.setVec3f("ambientColor", material.ambientColor);
+        it.setVec3f("diffuseColor", material.diffuseColor);
+        it.setVec3f("specularColor", material.specularColor);
+        it.setVec3f("emissiveColor", material.emissiveColor);
+        it.setFloat("shininess", material.shininess);
+        it.setFloat("shininessStrength", material.shininessStrength);
+        it.setInt(
+            "diffuseTexturesCount",
+            static_cast<int>(material.diffuseTextures.size()));
+        it.setInt(
+            "specularTexturesCount",
+            static_cast<int>(material.specularTextures.size()));
+        it.setInt(
+            "emissiveTexturesCount",
+            static_cast<int>(material.emissiveTextures.size()));
+        it.setInt(
+            "normalsTexturesCount",
+            static_cast<int>(material.normalsTextures.size()));
+        it.setInt(
+            "metalnessTexturesCount",
+            static_cast<int>(material.metalnessTextures.size()));
+        it.setInt(
+            "diffuseRoughnessTexturesCount",
+            static_cast<int>(material.diffuseRoughnessTextures.size()));
+      });
 }
 
-static inline void setSamplerUniform(
+void setSamplerUniform(
     Program& program,
-    const std::string& uniformNameBase,
     uint32_t concatNumber,
+    const std::string& uniformNameBase,
     uint32_t slot)
 {
   const std::string uniformName =
-      uniformNameBase + std::to_string(concatNumber);
-  program.doOperations([&uniformName, slot](Program& program)
-                       { program.setInt(uniformName, slot); });
+      fmt::format("{}{}", uniformNameBase, concatNumber);
+  program.doOperations([&uniformName, slot](Program& it)
+                       { it.setInt(uniformName, static_cast<int>(slot)); });
 }
 
-static inline void setUVChannelUniform(
+void setUVChannelUniform(
     Program& program,
     const std::string& uniformNameBase,
     uint32_t concatNumber,
@@ -29,12 +61,12 @@ static inline void setUVChannelUniform(
 {
   const int uvChannelValue = uvChannel.value_or(concatNumber);
   const std::string uniformName =
-      uniformNameBase + std::to_string(concatNumber);
-  program.doOperations([&uniformName, uvChannelValue](Program& program)
-                       { program.setInt(uniformName, uvChannelValue); });
+      fmt::format("{}{}", uniformNameBase, concatNumber);
+  program.doOperations([&uniformName, uvChannelValue](Program& it)
+                       { it.setInt(uniformName, uvChannelValue); });
 }
 
-static void assignSlotsToTextures(
+void assignSlotsToTextures(
     std::vector<Material::TextureData>& textures,
     const std::string& texturesType,
     Program& program,
@@ -43,56 +75,42 @@ static void assignSlotsToTextures(
   const size_t texturesCount = textures.size();
   for (uint32_t i = 0; i < texturesCount; ++i)
   {
-    uint32_t slot = slotToAssign++;
+    auto slot = slotToAssign;
+    ++slotToAssign;
     auto& textureData = textures[i];
     textureData.texture->use(slot);
-    setSamplerUniform(program, texturesType + "Texture", i, slot);
+    setSamplerUniform(program, i, texturesType + "Texture", slot);
     setUVChannelUniform(
         program, texturesType + "UVChannel", i, textureData.uvChannel);
   }
 }
 
-void Material::prepareTexturesForUse(Program& program)
+void prepareTexturesForUse(Program& program, Material& material)
 {
   uint32_t slotToAssign = 0;
-  assignSlotsToTextures(diffuseTextures_, "diffuse", program, slotToAssign);
-  assignSlotsToTextures(specularTextures_, "specular", program, slotToAssign);
-  assignSlotsToTextures(emissiveTextures_, "emissive", program, slotToAssign);
-  assignSlotsToTextures(normalsTextures_, "normals", program, slotToAssign);
-  assignSlotsToTextures(metalnessTextures_, "metalness", program, slotToAssign);
   assignSlotsToTextures(
-      diffuseRoughnessTextures_, "diffuseRoughness", program, slotToAssign);
+      material.diffuseTextures, "diffuse", program, slotToAssign);
+  assignSlotsToTextures(
+      material.specularTextures, "specular", program, slotToAssign);
+  assignSlotsToTextures(
+      material.emissiveTextures, "emissive", program, slotToAssign);
+  assignSlotsToTextures(
+      material.normalsTextures, "normals", program, slotToAssign);
+  assignSlotsToTextures(
+      material.metalnessTextures, "metalness", program, slotToAssign);
+  assignSlotsToTextures(
+      material.diffuseRoughnessTextures,
+      "diffuseRoughness",
+      program,
+      slotToAssign);
 }
 
-void Material::setUniforms(Program& program)
+}  // namespace
+
+void Material::use(Program& program)
 {
-  program.doOperations(
-      [this](Program& program)
-      {
-        program.setVec3f("ambientColor", ambientColor);
-        program.setVec3f("diffuseColor", diffuseColor);
-        program.setVec3f("specularColor", specularColor);
-        program.setVec3f("emissiveColor", emissiveColor);
-
-        program.setFloat("shininess", shininess);
-        program.setFloat("shininessStrength", shininessStrength);
-
-        program.setInt(
-            "diffuseTexturesCount", static_cast<int>(diffuseTextures_.size()));
-        program.setInt(
-            "specularTexturesCount",
-            static_cast<int>(specularTextures_.size()));
-        program.setInt(
-            "emissiveTexturesCount",
-            static_cast<int>(emissiveTextures_.size()));
-        program.setInt(
-            "normalsTexturesCount", static_cast<int>(normalsTextures_.size()));
-        program.setInt(
-            "metalnessTexturesCount",
-            static_cast<int>(metalnessTextures_.size()));
-        program.setInt(
-            "diffuseRoughnessTexturesCount",
-            static_cast<int>(diffuseRoughnessTextures_.size()));
-      });
+  prepareTexturesForUse(program, *this);
+  setUniforms(program, *this);
 }
+
 }  // namespace Simple3D

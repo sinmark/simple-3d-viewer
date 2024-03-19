@@ -86,7 +86,6 @@ class Renderer
     CachePair<Size> framebufferSize{};
   };
   Cache cache_;
-  GLFWwindow* window_;
 
   void performCacheChecks(Scene& scene, Size framebufferSize);
   void render(Model& model, Program& program);

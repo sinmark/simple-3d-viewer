@@ -10,7 +10,8 @@
 
 namespace Simple3D
 {
-class Material
+
+struct Material
 {
  public:
   struct TextureData
@@ -20,18 +21,18 @@ class Material
   };
 
   Material(
-      std::vector<TextureData>&& diffuseTextures,
-      std::vector<TextureData>&& specularTextures,
-      std::vector<TextureData>&& emissiveTextures,
-      std::vector<TextureData>&& normalsTextures,
-      std::vector<TextureData>&& metalnessTextures,
-      std::vector<TextureData>&& diffuseRoughnessTextures)
-      : diffuseTextures_(std::move(diffuseTextures)),
-        specularTextures_(std::move(specularTextures)),
-        emissiveTextures_(std::move(emissiveTextures)),
-        normalsTextures_(std::move(normalsTextures)),
-        metalnessTextures_(std::move(metalnessTextures)),
-        diffuseRoughnessTextures_(std::move(diffuseRoughnessTextures))
+      std::vector<TextureData> pDiffuseTextures,
+      std::vector<TextureData> pSpecularTextures,
+      std::vector<TextureData> pEmissiveTextures,
+      std::vector<TextureData> pNormalsTextures,
+      std::vector<TextureData> pMetalnessTextures,
+      std::vector<TextureData> pDiffuseRoughnessTextures)
+      : diffuseTextures(std::move(pDiffuseTextures)),
+        specularTextures(std::move(pSpecularTextures)),
+        emissiveTextures(std::move(pEmissiveTextures)),
+        normalsTextures(std::move(pNormalsTextures)),
+        metalnessTextures(std::move(pMetalnessTextures)),
+        diffuseRoughnessTextures(std::move(pDiffuseRoughnessTextures))
   {
   }
 
@@ -42,24 +43,20 @@ class Material
   float opacity{ 1.f };
   float shininess{ 0.f };
   float shininessStrength{ 1.f };
+  std::vector<TextureData> diffuseTextures;
+  std::vector<TextureData> specularTextures;
+  std::vector<TextureData> emissiveTextures;
+  std::vector<TextureData> normalsTextures;
+  std::vector<TextureData> metalnessTextures;
+  std::vector<TextureData> diffuseRoughnessTextures;
+  uint64_t id = generateSimpleId();
 
   void use(Program& program);
 
   [[nodiscard]] uint64_t getId() const
   {
-    return id_;
+    return id;
   }
-
- private:
-  std::vector<TextureData> diffuseTextures_;
-  std::vector<TextureData> specularTextures_;
-  std::vector<TextureData> emissiveTextures_;
-  std::vector<TextureData> normalsTextures_;
-  std::vector<TextureData> metalnessTextures_;
-  std::vector<TextureData> diffuseRoughnessTextures_;
-  uint64_t id_ = generateSimpleId();
-
-  void prepareTexturesForUse(Program& program);
-  void setUniforms(Program& program);
 };
+
 }  // namespace Simple3D
